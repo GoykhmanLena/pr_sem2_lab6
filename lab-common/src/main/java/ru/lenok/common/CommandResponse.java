@@ -2,8 +2,10 @@ package ru.lenok.common;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class CommandResponse {
+public class CommandResponse implements Serializable {
     private final String output;
     private final Exception error;
 

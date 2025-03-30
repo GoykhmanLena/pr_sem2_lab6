@@ -1,7 +1,5 @@
 package ru.lenok.server;
 
-import ru.lenok.common.Application;
-
 import java.io.IOException;
 
 
@@ -12,8 +10,9 @@ public final class Server {
     }
 
     public static void main(String[] args) throws IOException {
-        Application app = new Application(args);
+        ServerApplication app = new ServerApplication(args); // TODO 2 аргумента файл + порт
         app.start();
+
     }
 }
 

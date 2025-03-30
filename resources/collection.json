@@ -1,12 +1,12 @@
 {
   "bubuka": {
-    "id": 3,
+    "id": 5,
     "name": "buuuuuu",
     "coordinates": {
-      "x": "bjbk",
+      "x": 56.8,
       "y": 67.0
     },
-    "creationDate": "2025-03-23T13:36:52.3604223",
+    "creationDate": "2025-03-29T12:08:42.3007833",
     "minimalPoint": 87.0,
     "description": "kjhvc",
     "difficulty": "VERY_EASY",
@@ -16,19 +16,51 @@
     }
   },
   "jnbbjb": {
-    "id": 4,
+    "id": 6,
     "name": "njkjop",
     "coordinates": {
       "x": 98.4,
       "y": 90.1
     },
-    "creationDate": "2025-03-23T13:36:52.36193",
+    "creationDate": "2025-03-29T12:08:42.3018124",
     "minimalPoint": 90.0,
     "description": "jopoojnj",
     "difficulty": "NORMAL",
     "discipline": {
       "name": "njiokne",
       "practiceHours": 234
+    }
+  },
+  "vfghjk": {
+    "id": 7,
+    "name": "vhjk",
+    "coordinates": {
+      "x": 79.0,
+      "y": 5.0
+    },
+    "creationDate": "2025-03-29T12:09:39.6812286",
+    "minimalPoint": 6.0,
+    "description": "egfe",
+    "difficulty": "VERY_HARD",
+    "discipline": {
+      "name": "bgfr",
+      "practiceHours": 456
+    }
+  },
+  "gogogog": {
+    "id": 8,
+    "name": "bhjk",
+    "coordinates": {
+      "x": 678.0,
+      "y": 67.0
+    },
+    "creationDate": "2025-03-29T12:10:37.9544639",
+    "minimalPoint": 678.0,
+    "description": "cttoohbu",
+    "difficulty": "NORMAL",
+    "discipline": {
+      "name": "vbnhjk",
+      "practiceHours": 89
     }
   }
 }

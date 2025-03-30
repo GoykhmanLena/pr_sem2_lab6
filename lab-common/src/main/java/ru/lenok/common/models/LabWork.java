@@ -2,13 +2,14 @@ package ru.lenok.common.models;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static ru.lenok.common.LabWorkService.idCounter;
 
 @Data
-public class LabWork implements Comparable<LabWork> {
+public class LabWork implements Comparable<LabWork>, Serializable {
     private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null

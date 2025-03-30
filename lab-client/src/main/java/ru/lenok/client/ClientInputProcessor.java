@@ -1,34 +1,35 @@
-package ru.lenok.common;
+package ru.lenok.client;
 
 import lombok.Data;
-import ru.lenok.common.commands.*;
+import ru.lenok.common.*;
+import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.input.AbstractInput;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 @Data
 
-public class InputProcessor {
-    public static boolean debug = false;
-    private final LabWorkService labWorkService;
-    private final CommandRegistry commandRegistry;
-    private final Stack<String> scriptExecutionContext;
-    private final CommandController commandController;
-    private final IHistoryProvider historyProvider;
+public class ClientInputProcessor {
+    public static boolean debug = true;
+    private Map<CommandName, CommandDefinition> commandDefinitions;
+    private Stack<String> scriptExecutionContext;
+    private ClientConnector clientConnector;
+    private final String clientID;
 
-    public InputProcessor(LabWorkService labWorkService, CommandRegistry commandRegistry, IHistoryProvider historyProvider, CommandController commandController) {
+    public ClientInputProcessor(Map<CommandName, CommandDefinition> commandDefinitions, ClientConnector clientConnector, String clientID) {
         this.scriptExecutionContext = new Stack<>();
-        this.labWorkService = labWorkService;
-        this.commandRegistry = commandRegistry;
-        this.historyProvider = historyProvider;
-        this.commandController = commandController;
-        init();
+        this.commandDefinitions = commandDefinitions;
+        this.clientConnector = clientConnector;
+        this.clientID = clientID;
     }
-    public void processInput(AbstractInput input, boolean interactive) throws Exception
-    {
-        processInput(input, interactive, null);
-    }
-    public void processInput(AbstractInput input, boolean interactive, String clientID) throws Exception {
+
+    public void processInput(AbstractInput input, boolean interactive) throws Exception {
         String line;
         CommandWithArgument commandWithArgument = null;
         LabWorkItemAssembler labWorkItemAssembler = null;
@@ -42,19 +43,14 @@ public class InputProcessor {
                     continue;
                 }
                 if (labWorkItemAssembler.isFinished()) {
-                    commandRequest = new CommandRequest(
-                            commandWithArgument,
-                            labWorkItemAssembler.getLabWorkElement(),
-                            clientID,
-                            null //TODO fileMap
-                    );
-                    CommandResponse commandResponse = sendRequest(commandRequest);
+                    commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler.getLabWorkElement(), clientID, null);
+                    CommandResponse commandResponse = clientConnector.sendCommand(commandRequest);
                     processResponse(commandResponse);
                     labWorkItemAssembler = null;
                 }
                 continue;
             }
-            try {
+            try{
                 commandWithArgument = parseLineAsCommand(line);
             } catch (Exception e) {
                 handleException(interactive, e);
@@ -63,25 +59,22 @@ public class InputProcessor {
             if (commandWithArgument.getCommandDefinition().isHasElement()) {
                 labWorkItemAssembler = new LabWorkItemAssembler(interactive);
             } else {
-                commandRequest = new CommandRequest(
-                        commandWithArgument,
-                        null,
-                        clientID,
-                        null //TODO fileMap
-                );
-                CommandResponse commandResponse = sendRequest(commandRequest);
+                Map <String, List<String>>filesMap = null;
+                if (commandWithArgument.getCommandDefinition().getCommandName() == CommandName.execute_script){
+                    filesMap = new HashMap<>();
+                    String filePath = commandWithArgument.getArgument();
+                    List<String> fileContent = Files.readAllLines(Paths.get(filePath));
+                    filesMap.put(filePath, fileContent);
+                }
+                commandRequest = new CommandRequest(commandWithArgument, null, clientID, filesMap);
+                CommandResponse commandResponse = clientConnector.sendCommand(commandRequest);
                 processResponse(commandResponse);
             }
         }
         if (labWorkItemAssembler != null) {
             if (labWorkItemAssembler.isFinished()) {
-                commandRequest = new CommandRequest(
-                        commandWithArgument,
-                        labWorkItemAssembler.getLabWorkElement(),
-                        clientID,
-                        null //TODO fileMap
-                );
-                CommandResponse commandResponse = sendRequest(commandRequest);
+                commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler.getLabWorkElement(), clientID, null);
+                CommandResponse commandResponse = clientConnector.sendCommand(commandRequest);
                 processResponse(commandResponse);
             } else {
                 System.err.println("Внимание! У вас в файле есть невыполненная последняя команда - недостаточно полей введено");
@@ -94,11 +87,6 @@ public class InputProcessor {
             throw e;
         }
         displayCommonError(e);
-    }
-
-    private CommandResponse sendRequest(CommandRequest commandRequest) {
-        historyProvider.getHistoryByClientID(commandRequest.getClientID()).addCommand(commandRequest.getCommandWithArgument().getCommandDefinition().getCommandName());
-        return commandController.handle(commandRequest);
     }
 
     private void processResponse(CommandResponse commandResponse) {
@@ -119,13 +107,12 @@ public class InputProcessor {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0], e);
         }
-        AbstractCommand command = commandRegistry.getCommand(commandName);
-        if (!command.hasArg() && splittedLine.length >= 2) {
+        CommandDefinition commandDefinition = commandDefinitions.get(commandName);
+        if (!commandDefinition.isHasArg() && splittedLine.length >= 2) {
             throw new IllegalArgumentException("Слишком много аргументов, ожидалось 0: " + line);
-        } else if (command.hasArg() && (splittedLine.length == 1 || splittedLine.length > 2)) {
+        } else if (commandDefinition.isHasArg() && (splittedLine.length == 1 || splittedLine.length > 2)) {
             throw new IllegalArgumentException("Неправильное колличество аргументов, ожидался 1: " + line);
         }
-        CommandDefinition commandDefinition = commandRegistry.getCommandDefinition(commandName);
         result = new CommandWithArgument(commandDefinition, splittedLine.length == 2 ? splittedLine[1] : null);
         return result;
     }
@@ -148,9 +135,6 @@ public class InputProcessor {
         } else {
             System.err.println(e.getMessage());
         }
-    }
-
-    void init() {
     }
 
     /*

@@ -2,8 +2,10 @@ package ru.lenok.common.models;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class Discipline {
+public class Discipline implements Serializable {
     private String name; //Поле не может быть null, Строка не может быть пустой
     private long practiceHours;
 

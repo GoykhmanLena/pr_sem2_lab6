@@ -1,8 +1,14 @@
-package ru.lenok.common;
+package ru.lenok.server;
 
+import ru.lenok.common.IInputProcessorProvider;
+import ru.lenok.common.InputProcessor;
+import ru.lenok.common.LabWorkService;
+import ru.lenok.common.commands.CommandRegistry;
+import ru.lenok.common.commands.IHistoryProvider;
 import ru.lenok.common.input.AbstractInput;
 import ru.lenok.common.input.ConsoleInput;
 import ru.lenok.common.models.LabWork;
+import ru.lenok.common.util.HistoryList;
 import ru.lenok.common.util.JsonReader;
 
 import java.io.IOException;
@@ -13,19 +19,43 @@ import java.util.Hashtable;
 import static java.lang.Math.max;
 import static ru.lenok.common.LabWorkService.idCounter;
 
-public class Application {
+public class ServerApplication implements IInputProcessorProvider, IHistoryProvider {
     public static String filename;
     String[] args;
     private LabWorkService labWorkService;
+    private CommandRegistry commandRegistry;
+    private InputProcessor inputProcessor;
+    private RequestHandler requestHandler;
 
-    public Application(String[] args) {
+    public ServerApplication(String[] args){
         this.args = args;
         init();
     }
 
     public void start() throws IOException {
+        ServerConnector serverConnector= new ServerConnector(1818, requestHandler);
+        serverConnector.listen();
         PrintStream ps = new PrintStream(System.out, true);
         System.setErr(ps);
+/*
+        try (AbstractInput input = new ConsoleInput()) {
+            inputProcessor = new InputProcessor(labWorkService, commandRegistry);
+            inputProcessor.processInput(input, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //System.out.println(collection);
+
+ */
+    }
+
+    private void init() {
+        initStorage();
+        this.commandRegistry = new CommandRegistry(labWorkService, this, this);
+        requestHandler = new RequestHandler(commandRegistry);
+        inputProcessor = new InputProcessor(labWorkService, commandRegistry, requestHandler, requestHandler.getCommandController());
+    }
+    private void initStorage(){
         JsonReader jsonReader = new JsonReader();
         Hashtable<String, LabWork> map = new Hashtable<>();
         HashSet<Long> setOfId = new HashSet<>();
@@ -60,15 +90,15 @@ public class Application {
             System.err.println("Программа завершается");
             System.exit(0);
         }
-        try (AbstractInput input = new ConsoleInput()) {
-            InputProcessor inputProcess = new InputProcessor(labWorkService);
-            inputProcess.processInput(input, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //System.out.println(collection);
     }
 
-    void init() {
+    @Override
+    public InputProcessor getInputProcessor() {
+        return inputProcessor;
+    }
+
+    @Override
+    public HistoryList getHistoryByClientID(String clientID) {
+        return requestHandler.getHistoryByClientID(clientID);
     }
 }

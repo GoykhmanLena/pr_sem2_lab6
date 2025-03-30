@@ -6,8 +6,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static ru.lenok.common.Application.filename;
-
 public class SaveToFileCommand extends AbstractCommand {
     LabWorkService labWorkService;
 
@@ -19,7 +17,7 @@ public class SaveToFileCommand extends AbstractCommand {
     @Override
     public String execute(String arg) throws IOException {
         String json = labWorkService.getCollectionAsJson();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(""))) { //TODO
             writer.write(json);
         }
         return EMPTY_RESULT;

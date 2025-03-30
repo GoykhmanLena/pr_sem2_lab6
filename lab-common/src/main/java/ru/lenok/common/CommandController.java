@@ -1,20 +1,31 @@
 package ru.lenok.common;
 
-import ru.lenok.common.commands.AbstractCommand;
-import ru.lenok.common.commands.CommandWithElement;
+import lombok.AllArgsConstructor;
+import ru.lenok.common.commands.*;
 
+@AllArgsConstructor
 public class CommandController {
+    private final CommandRegistry commandRegistry;
 
     public CommandResponse handle(CommandRequest request) {
         CommandWithArgument commandWithArgument = request.getCommandWithArgument();
-        AbstractCommand command = commandWithArgument.getCommand();
+        CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
         CommandResponse commandResponse;
         try {
             String executionResult;
+            AbstractCommand command = commandRegistry.getCommand(commandDefinition.getCommandName());
             if (command instanceof CommandWithElement) {
                 CommandWithElement commandWithElement = (CommandWithElement) command;
                 executionResult = commandWithElement.execute(commandWithArgument.getArgument(), request.getElement());
-            } else {
+            }
+            else if (command instanceof HistoryCommand) {
+                HistoryCommand historyCommand = (HistoryCommand) command;
+                executionResult = historyCommand.execute(request.getClientID());
+            }
+            else if (command instanceof ExecuteScriptCommand) {
+                ExecuteScriptCommand executeScriptCommand = (ExecuteScriptCommand) command;
+                executionResult = executeScriptCommand.execute(request.getCommandWithArgument().getArgument(), request.getFileNameToContent(), request.getClientID());
+            }else {
                 executionResult = command.execute(commandWithArgument.getArgument());
             }
             commandResponse = new CommandResponse(executionResult);

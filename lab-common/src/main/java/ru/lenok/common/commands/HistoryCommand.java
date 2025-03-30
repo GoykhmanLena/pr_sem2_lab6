@@ -1,17 +1,16 @@
 package ru.lenok.common.commands;
 
-import ru.lenok.common.InputProcessor;
-
 public class HistoryCommand extends AbstractCommand {
-    private final InputProcessor inputProcessor;
+    private final IHistoryProvider historyProvider;
 
-    public HistoryCommand(InputProcessor inputProcessor) {
+    public HistoryCommand(IHistoryProvider historyProvider) {
         super("history", "вывести последние 15 команд (без их аргументов)");
-        this.inputProcessor = inputProcessor;
+        this.historyProvider = historyProvider;
     }
 
     @Override
-    public String execute(String arg) {
-        return inputProcessor.getHistoryList().getLastNCommands(15);
+    public String execute(String clientID) {
+        String lastNCommands = historyProvider.getHistoryByClientID(clientID).getLastNCommands(15);
+        return "История клиента с ID: " + clientID + "\n" + lastNCommands;
     }
 }
