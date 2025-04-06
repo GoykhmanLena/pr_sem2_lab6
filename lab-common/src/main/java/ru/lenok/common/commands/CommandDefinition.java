@@ -11,5 +11,5 @@ public class CommandDefinition implements Serializable {
     private final CommandName commandName;
     private final boolean hasArg;
     private final boolean hasElement;
-    private final boolean preprocess;
+    private final boolean isClient;
 }

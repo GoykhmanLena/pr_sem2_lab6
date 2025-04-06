@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ru.lenok.common.LabWorkService.idCounter;
-
 public class LabWorkItemAssembler {
     private static final int FIELDS_COUNT = 8;
     private static final List<String> allPrompts = new ArrayList<>();
@@ -43,7 +41,6 @@ public class LabWorkItemAssembler {
         switch (fieldNumber) {
             case 1:
                 builder.setName(line);
-                idCounter++;
                 prompt(fieldNumber);
                 break;
             case 2:

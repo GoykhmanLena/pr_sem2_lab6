@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.lenok.common.models.LabWork;
+import ru.lenok.common.util.IdCounterService;
 import ru.lenok.common.util.LocalDateTimeAdapter;
 
 import java.io.IOException;
@@ -15,13 +16,17 @@ import java.util.stream.Collectors;
 
 @Data
 public class LabWorkService {
-    public static long idCounter;
     private Storage storage;
+    private final String filename;
 
-    public LabWorkService(Hashtable<String, LabWork> initialState) {
+    public LabWorkService(Hashtable<String, LabWork> initialState, String filename) {
         this.storage = new Storage(initialState);
+        this.filename = filename;
     }
 
+    public Map<String, LabWork> getWholeMap(){
+        return storage.getMap();
+    }
     public String put(String key, LabWork lab) {
         String warning = null;
         if (storage.getMap().containsKey(key)) {
@@ -30,7 +35,9 @@ public class LabWorkService {
         storage.put(key, lab);
         return warning;
     }
-
+    public String getFileName(){
+        return filename;
+    }
     public void remove(String key) {
         storage.remove(key);
     }
@@ -63,11 +70,10 @@ public class LabWorkService {
            return (answer.toString());
        }
    */
-    public String filterWithDescription(String descript_part) {
+    public Map<String, LabWork> filterWithDescription(String descript_part) {
         return storage.getMap().entrySet().stream()
                 .filter(entry -> entry.getValue().getDescription().contains(descript_part))
-                .map(entry -> entry.getKey() + " = " + entry.getValue())
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 
@@ -82,11 +88,10 @@ public class LabWorkService {
            return (answer.toString());
        }
    */
-    public String filterWithName(String name_part) {
+    public Map<String, LabWork> filterWithName(String name_part) {
         return storage.getMap().entrySet().stream()
                 .filter(entry -> entry.getValue().getName().startsWith(name_part))
-                .map(entry -> entry.getKey() + " = " + entry.getValue())
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /*
@@ -116,13 +121,14 @@ public class LabWorkService {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList())
                 .forEach(storage::remove);
-        idCounter--;
     }
 
 
-    public void replaceIfGreater(String key, LabWork elem) { //TODO нужен ли тут StreamAPI
-        if (storage.getMap().get(key).compareTo(elem) < 0) {
-            storage.put(key, elem);
+    public void replaceIfGreater(String key, LabWork newLabWork) {
+        LabWork oldLabWork = storage.getMap().get(key);
+        if (oldLabWork.compareTo(newLabWork) < 0) {
+            newLabWork.setId(oldLabWork.getId());
+            storage.put(key, newLabWork);
         }
     }
 
@@ -174,6 +180,13 @@ public class LabWorkService {
                 .map(entry -> new LabWorkEntry(entry.getKey(), entry.getValue()))
                 .sorted()
                 .map(labWorkEntry -> labWorkEntry.key + " = " + labWorkEntry.labWork)
+                .collect(Collectors.joining("\n"));
+    }
+    public static String sortMapAndStringify(Map<String, LabWork> filteredMap) {
+        return filteredMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue()) // сортировка по значению
+                .map(entry -> entry.getKey() + " = " + entry.getValue())
                 .collect(Collectors.joining("\n"));
     }
 

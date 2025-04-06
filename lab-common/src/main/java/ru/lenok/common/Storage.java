@@ -7,7 +7,6 @@ import java.util.Hashtable;
 
 @Data
 public class Storage {
-    public static long idCounter;
     private final Hashtable<String, LabWork> map;
 
     public Storage(Hashtable<String, LabWork> map) {

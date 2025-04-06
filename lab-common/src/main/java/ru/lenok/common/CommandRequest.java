@@ -14,5 +14,4 @@ public class CommandRequest implements Serializable {
     private CommandWithArgument commandWithArgument;
     private LabWork element;
     private String clientID;
-    private Map<String, List<String>> fileNameToContent;
 }

@@ -20,32 +20,8 @@ public class ExecuteScriptCommand extends AbstractCommand {
         this.inputProcessorProvider = inpPr;
     }
 
-    public String execute(String arg, Map<String, List<String>> fileNameToContent, String clientID) throws IOException {
-        InputProcessor inpPr = inputProcessorProvider.getInputProcessor();
-        File file = new File(arg);
-        System.out.println("-------------------- Начало выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
-        if (inpPr.checkContext(file.getCanonicalPath())) {
-            throw new IllegalArgumentException("Обнаружен ЦИКЛ, файл: " + file + " не будет открыт");
-        }
-        inpPr.setScriptExecutionContext(file.getCanonicalPath());
-        try (AbstractInput memoryInput = new MemoryInput(fileNameToContent.get(arg))) {
-            inpPr.processInput(memoryInput, false, clientID);
-        } catch (IOException e) {
-            throw new IOException("Ошибка при чтении файла, проверьте что он существует");
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Произошла ошибка,принудительное завершение чтения файла", e);
-        } finally {
-            inpPr.exitContext();
-            System.out.println("-------------------- Конец выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
-        }
-        return EMPTY_RESULT;
-    }
-
-    @Override
     public String execute(String arg) throws IOException {
-        throw new UnsupportedOperationException();
+        return "execute_script добавлен в историю";
     }
 
     @Override

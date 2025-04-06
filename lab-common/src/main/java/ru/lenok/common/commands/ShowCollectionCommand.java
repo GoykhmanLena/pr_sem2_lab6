@@ -1,6 +1,7 @@
 package ru.lenok.common.commands;
 
 import ru.lenok.common.LabWorkService;
+import static ru.lenok.common.LabWorkService.sortMapAndStringify;
 
 public class ShowCollectionCommand extends AbstractCommand {
     LabWorkService labWorkService;
@@ -12,7 +13,8 @@ public class ShowCollectionCommand extends AbstractCommand {
 
     @Override
     public String execute(String arg) {
-        return labWorkService.getCollectionSize() == 0 ? "ПУСТАЯ КОЛЛЕКЦИЯ" : labWorkService.toString();
+        String sortCollectionAndStringifyResult = sortMapAndStringify(labWorkService.getWholeMap());
+        return labWorkService.getCollectionSize() == 0 ? "ПУСТАЯ КОЛЛЕКЦИЯ" : sortCollectionAndStringifyResult;
     }
 
 }

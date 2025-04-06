@@ -1,14 +1,16 @@
 package ru.lenok.common;
 
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.lenok.common.commands.*;
 import ru.lenok.common.input.AbstractInput;
 
 import java.util.Stack;
-
+@Deprecated
 @Data
-
 public class InputProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(InputProcessor.class);
     public static boolean debug = false;
     private final LabWorkService labWorkService;
     private final CommandRegistry commandRegistry;
@@ -45,8 +47,7 @@ public class InputProcessor {
                     commandRequest = new CommandRequest(
                             commandWithArgument,
                             labWorkItemAssembler.getLabWorkElement(),
-                            clientID,
-                            null //TODO fileMap
+                            clientID
                     );
                     CommandResponse commandResponse = sendRequest(commandRequest);
                     processResponse(commandResponse);
@@ -66,8 +67,7 @@ public class InputProcessor {
                 commandRequest = new CommandRequest(
                         commandWithArgument,
                         null,
-                        clientID,
-                        null //TODO fileMap
+                        clientID
                 );
                 CommandResponse commandResponse = sendRequest(commandRequest);
                 processResponse(commandResponse);
@@ -78,13 +78,12 @@ public class InputProcessor {
                 commandRequest = new CommandRequest(
                         commandWithArgument,
                         labWorkItemAssembler.getLabWorkElement(),
-                        clientID,
-                        null //TODO fileMap
+                        clientID
                 );
                 CommandResponse commandResponse = sendRequest(commandRequest);
                 processResponse(commandResponse);
             } else {
-                System.err.println("Внимание! У вас в файле есть невыполненная последняя команда - недостаточно полей введено");
+                logger.error("Внимание! У вас в файле есть невыполненная последняя команда - недостаточно полей введено");
             }
         }
     }
@@ -103,7 +102,7 @@ public class InputProcessor {
 
     private void processResponse(CommandResponse commandResponse) {
         if (commandResponse.getError() == null) {
-            System.out.println(commandResponse.getOutput());
+            logger.info(commandResponse.getOutput());
         } else {
             displayCommonError(commandResponse.getError());
         }
@@ -143,11 +142,7 @@ public class InputProcessor {
     }
 
     private void displayCommonError(Exception e) {
-        if (debug) {
-            e.printStackTrace();
-        } else {
-            System.err.println(e.getMessage());
-        }
+        logger.error("Ошибка: ", e);
     }
 
     void init() {

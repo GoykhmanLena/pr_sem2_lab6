@@ -1,5 +1,7 @@
 package ru.lenok.common.commands;
 
+import java.util.stream.Collectors;
+
 public class HelpCommand extends AbstractCommand {
     private final CommandRegistry commandRegistry;
 
@@ -10,10 +12,8 @@ public class HelpCommand extends AbstractCommand {
 
     @Override
     public String execute(String arg) {
-        StringBuffer sb = new StringBuffer();
-        for (CommandName commandName : commandRegistry.getCommandNames()) {
-            sb.append(commandRegistry.getCommandDescription(commandName) + "\n");
-        }
-        return sb.toString();
+        return commandRegistry.getClientCommandDefinitions().entrySet().stream()
+                .map(entry -> commandRegistry.getCommandDescription(entry.getKey()))
+                .collect(Collectors.joining("\n"));
     }
 }

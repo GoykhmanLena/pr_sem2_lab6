@@ -7,8 +7,11 @@ public class ExitFromProgramCommand extends AbstractCommand {
 
     @Override
     public String execute(String arg) {
-        System.out.println("Exiting the application.");
-        System.exit(0);
         return EMPTY_RESULT;
+    }
+
+    @Override
+    public boolean isClientCommand() {
+        return true;
     }
 }

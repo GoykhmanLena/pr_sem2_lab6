@@ -17,15 +17,10 @@ public class CommandController {
             if (command instanceof CommandWithElement) {
                 CommandWithElement commandWithElement = (CommandWithElement) command;
                 executionResult = commandWithElement.execute(commandWithArgument.getArgument(), request.getElement());
-            }
-            else if (command instanceof HistoryCommand) {
+            } else if (command instanceof HistoryCommand) {
                 HistoryCommand historyCommand = (HistoryCommand) command;
                 executionResult = historyCommand.execute(request.getClientID());
-            }
-            else if (command instanceof ExecuteScriptCommand) {
-                ExecuteScriptCommand executeScriptCommand = (ExecuteScriptCommand) command;
-                executionResult = executeScriptCommand.execute(request.getCommandWithArgument().getArgument(), request.getFileNameToContent(), request.getClientID());
-            }else {
+            } else {
                 executionResult = command.execute(commandWithArgument.getArgument());
             }
             commandResponse = new CommandResponse(executionResult);

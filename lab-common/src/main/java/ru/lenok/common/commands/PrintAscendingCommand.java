@@ -16,15 +16,6 @@ public class PrintAscendingCommand extends AbstractCommand {
         this.labWorkService = labWorkService;
     }
 
-    //    @Override
-    public void execute2(String arg) {
-        List<LabWork> col = new ArrayList<>(labWorkService.getStorage().getMap().values());
-        Collections.sort(col);
-        for (LabWork labWork : col) {
-            System.out.println(labWork);
-        }
-    }
-
     public String execute(String arg) {
         return labWorkService.sortedByNameCollection(arg);
     }

@@ -17,7 +17,7 @@ public class SaveToFileCommand extends AbstractCommand {
     @Override
     public String execute(String arg) throws IOException {
         String json = labWorkService.getCollectionAsJson();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(""))) { //TODO
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(labWorkService.getFileName()))) {
             writer.write(json);
         }
         return EMPTY_RESULT;

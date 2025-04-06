@@ -14,7 +14,8 @@ import static ru.lenok.common.commands.CommandName.*;
 public class CommandRegistry {
     private final LabWorkService labWorkService;
     public Map<CommandName, AbstractCommand> commands = new HashMap<>();
-    public Map<CommandName, CommandDefinition> commandDefinitions = new HashMap<>();
+    public Map<CommandName, CommandDefinition> commandDefinitions;
+    public Map<CommandName, CommandDefinition> clientCommandDefinitions;
 
     public CommandRegistry(LabWorkService labWorkService, IInputProcessorProvider inputProcessorProvider, IHistoryProvider historyProvider) {
         this.labWorkService = labWorkService;
@@ -35,10 +36,19 @@ public class CommandRegistry {
         commands.put(execute_script, new ExecuteScriptCommand(labWorkService, inputProcessorProvider));
         commands.put(history, new HistoryCommand(historyProvider));
         commandDefinitions = commands.entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getKey() == execute_script)));
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
+                        new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getValue().isClientCommand())));
+
+        clientCommandDefinitions = commands.entrySet().stream()
+                .filter(entry -> entry.getKey() != save)
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
+                        new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getValue().isClientCommand())));
     }
     public Map<CommandName, CommandDefinition> getCommandDefinitions(){
         return commandDefinitions;
+    }
+    public Map<CommandName, CommandDefinition> getClientCommandDefinitions(){
+        return clientCommandDefinitions;
     }
     public CommandDefinition getCommandDefinition(CommandName commandName){
         return commandDefinitions.get(commandName);

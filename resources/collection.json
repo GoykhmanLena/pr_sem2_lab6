@@ -1,18 +1,34 @@
 {
   "bubuka": {
-    "id": 5,
+    "id": 1,
     "name": "buuuuuu",
     "coordinates": {
       "x": 56.8,
       "y": 67.0
     },
-    "creationDate": "2025-03-29T12:08:42.3007833",
+    "creationDate": "2025-04-06T14:39:13.5242618",
     "minimalPoint": 87.0,
     "description": "kjhvc",
     "difficulty": "VERY_EASY",
     "discipline": {
       "name": "kjjbhhgv",
       "practiceHours": 99
+    }
+  },
+  "vbhj": {
+    "id": 3,
+    "name": "bhjk",
+    "coordinates": {
+      "x": 678.0,
+      "y": 789.0
+    },
+    "creationDate": "2025-04-06T14:40:23.2583989",
+    "minimalPoint": 78.0,
+    "description": "fghj",
+    "difficulty": "NORMAL",
+    "discipline": {
+      "name": "vghj",
+      "practiceHours": 789
     }
   },
   "jnbbjb": {
@@ -29,6 +45,38 @@
     "discipline": {
       "name": "njiokne",
       "practiceHours": 234
+    }
+  },
+  "check_saving": {
+    "id": 2,
+    "name": "njkjop",
+    "coordinates": {
+      "x": 98.4,
+      "y": 90.1
+    },
+    "creationDate": "2025-04-06T14:39:13.5951652",
+    "minimalPoint": 90.0,
+    "description": "raaaaaaaaa",
+    "difficulty": "NORMAL",
+    "discipline": {
+      "name": "njiokne",
+      "practiceHours": 234
+    }
+  },
+  "AAAAAAAA": {
+    "id": 10,
+    "name": "fghjk",
+    "coordinates": {
+      "x": 789.0,
+      "y": 5678.0
+    },
+    "creationDate": "2025-04-06T15:10:04.5985935",
+    "minimalPoint": 5678.0,
+    "description": "fghjk",
+    "difficulty": "NORMAL",
+    "discipline": {
+      "name": "ghjk",
+      "practiceHours": 5678
     }
   },
   "vfghjk": {

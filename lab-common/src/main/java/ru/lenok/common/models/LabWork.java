@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static ru.lenok.common.LabWorkService.idCounter;
 
 @Data
 public class LabWork implements Comparable<LabWork>, Serializable {
@@ -28,7 +27,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         this.discipline = discipline;
 
         this.creationDate = LocalDateTime.now();
-        this.id = idCounter;
+        this.id = 0L;
     }
 
     public void setId(Long id) {

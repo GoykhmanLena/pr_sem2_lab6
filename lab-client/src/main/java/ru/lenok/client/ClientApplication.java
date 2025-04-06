@@ -1,6 +1,10 @@
 package ru.lenok.client;
 
-import ru.lenok.common.InputProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
+
 import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.input.AbstractInput;
@@ -10,9 +14,10 @@ import java.net.InetAddress;
 import java.util.Map;
 
 public class ClientApplication {
+    private static final Logger logger = LoggerFactory.getLogger(ClientApplication.class);
     private final InetAddress ip;
     private final int port;
-    private final String clientID = "lenok"; //TODO get UUID
+    public static final String CLIENT_ID = UUID.randomUUID().toString();
     private Map<CommandName, CommandDefinition> commandDefinitions;
     public ClientApplication(InetAddress ip, int port){
         this.ip = ip;
@@ -24,10 +29,10 @@ public class ClientApplication {
         commandDefinitions = clientConnector.sendHello();
 
         try (AbstractInput input = new ConsoleInput()) {
-            ClientInputProcessor inputProcessor = new ClientInputProcessor(commandDefinitions, clientConnector, clientID);
+            ClientInputProcessor inputProcessor = new ClientInputProcessor(commandDefinitions, clientConnector);
             inputProcessor.processInput(input, true);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Ошибка: ", e);
         }
     }
 }
