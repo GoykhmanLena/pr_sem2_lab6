@@ -1,7 +1,5 @@
 package ru.lenok.common.commands;
 
-
-import ru.lenok.common.IInputProcessorProvider;
 import ru.lenok.common.LabWorkService;
 
 import java.util.Collection;
@@ -17,7 +15,7 @@ public class CommandRegistry {
     public Map<CommandName, CommandDefinition> commandDefinitions;
     public Map<CommandName, CommandDefinition> clientCommandDefinitions;
 
-    public CommandRegistry(LabWorkService labWorkService, IInputProcessorProvider inputProcessorProvider, IHistoryProvider historyProvider) {
+    public CommandRegistry(LabWorkService labWorkService, IHistoryProvider historyProvider) {
         this.labWorkService = labWorkService;
         commands.put(insert, new InsertToCollectionCommand(labWorkService));
         commands.put(exit, new ExitFromProgramCommand());
@@ -33,7 +31,7 @@ public class CommandRegistry {
         commands.put(help, new HelpCommand(this));
         commands.put(info, new InfoAboutCollectionCommand(labWorkService));
         commands.put(clear, new ClearCollectionCommand(labWorkService));
-        commands.put(execute_script, new ExecuteScriptCommand(labWorkService, inputProcessorProvider));
+        commands.put(execute_script, new ExecuteScriptCommand(labWorkService));
         commands.put(history, new HistoryCommand(historyProvider));
         commandDefinitions = commands.entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
@@ -44,15 +42,19 @@ public class CommandRegistry {
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
                         new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getValue().isClientCommand())));
     }
-    public Map<CommandName, CommandDefinition> getCommandDefinitions(){
+
+    public Map<CommandName, CommandDefinition> getCommandDefinitions() {
         return commandDefinitions;
     }
-    public Map<CommandName, CommandDefinition> getClientCommandDefinitions(){
+
+    public Map<CommandName, CommandDefinition> getClientCommandDefinitions() {
         return clientCommandDefinitions;
     }
-    public CommandDefinition getCommandDefinition(CommandName commandName){
+
+    public CommandDefinition getCommandDefinition(CommandName commandName) {
         return commandDefinitions.get(commandName);
     }
+
     public AbstractCommand getCommand(CommandName commandName) throws IllegalArgumentException {
         return commands.get(commandName);
     }

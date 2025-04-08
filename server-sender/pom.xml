@@ -7,8 +7,8 @@
         <artifactId>lab</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>lab-common</artifactId>
-    <name>lab-common</name>
+    <artifactId>server-sender</artifactId>
+    <name>server-sender</name>
 
     <build>
         <plugins>
@@ -44,6 +44,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.lenok</groupId>
+            <artifactId>lab-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

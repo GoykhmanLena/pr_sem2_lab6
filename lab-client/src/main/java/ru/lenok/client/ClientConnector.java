@@ -71,7 +71,7 @@ public class ClientConnector {
             try (DatagramChannel clientChannel = DatagramChannel.open()) {
                 clientChannel.configureBlocking(false);
 
-                byte[] data = serialize(obj);
+                byte[] data = INSTANCE.serialize(obj);
                 ByteBuffer buffer = ByteBuffer.wrap(data);
 
                 clientChannel.send(buffer, serverAddress);
@@ -97,7 +97,7 @@ public class ClientConnector {
 
                 if (sourceAddress != null) {
                     receiveBuffer.flip();
-                    Object response = deserialize(receiveBuffer.array());
+                    Object response = INSTANCE.deserialize(receiveBuffer.array());
                     logger.debug("Ответ от сервера: " + response);
                     return response;
                 } else {

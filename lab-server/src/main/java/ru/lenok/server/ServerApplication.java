@@ -2,30 +2,37 @@ package ru.lenok.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.lenok.common.*;
-import ru.lenok.common.commands.AbstractCommand;
+import ru.lenok.common.CommandRequest;
+import ru.lenok.common.CommandWithArgument;
+import ru.lenok.common.LabWorkService;
 import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.commands.CommandRegistry;
 import ru.lenok.common.commands.IHistoryProvider;
 import ru.lenok.common.models.LabWork;
 import ru.lenok.common.util.HistoryList;
 import ru.lenok.common.util.IdCounterService;
+import ru.lenok.common.util.IncomingMessage;
 import ru.lenok.common.util.JsonReader;
+import ru.lenok.connector.ServerConnectionListener;
+import ru.lenok.request_handler.RequestHandler;
+import ru.lenok.server_sender.ServerResponseSender;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.util.HashSet;
 import java.util.Hashtable;
 
 import static java.lang.Math.max;
 
-public class ServerApplication implements IInputProcessorProvider, IHistoryProvider {
+public class ServerApplication implements IHistoryProvider {
     private static final Logger logger = LoggerFactory.getLogger(ServerApplication.class);
     private final String filename;
     private LabWorkService labWorkService;
     private CommandRegistry commandRegistry;
-    private InputProcessor inputProcessor;
     private RequestHandler requestHandler;
     private final int port;
+    private ServerConnectionListener serverConnectionListener;
+    private ServerResponseSender serverResponseSender;
 
     public ServerApplication(String file, int port) {
         this.filename = file;
@@ -33,19 +40,32 @@ public class ServerApplication implements IInputProcessorProvider, IHistoryProvi
         init();
     }
 
-    public void start() throws IOException {
+    public void start() {
         logger.info("Сервер работает");
-        ServerConnector serverConnector = new ServerConnector(port, requestHandler);
-        serverConnector.listen();
+        while (true) {
+            try {
+                IncomingMessage incomingMessage = serverConnectionListener.listenAndReceiveMessage();
+                Object responseToBeSent = requestHandler.onReceive(incomingMessage.getMessage());
+                serverResponseSender.sendMessageToClient(responseToBeSent, incomingMessage.getClientIp(), incomingMessage.getClientPort());
+            } catch (Exception e) {
+                logger.error("Ошибка, ", e);
+            }
+        }
     }
 
     private void init() {
-        initStorage();
-        this.commandRegistry = new CommandRegistry(labWorkService, this, this);
-        requestHandler = new RequestHandler(commandRegistry);
-        inputProcessor = new InputProcessor(labWorkService, commandRegistry, requestHandler, requestHandler.getCommandController());
+        try {
+            initStorage();
+            this.commandRegistry = new CommandRegistry(labWorkService, this);
+            requestHandler = new RequestHandler(commandRegistry);
 
-        handleSaveOnTerminate();
+            serverConnectionListener = new ServerConnectionListener(port);
+            serverResponseSender = new ServerResponseSender(serverConnectionListener.getSocket());
+            handleSaveOnTerminate();
+        } catch (Exception e) {
+            logger.error("Ошибка, ", e);
+            System.exit(1);
+        }
     }
 
     private void handleSaveOnTerminate() {
@@ -55,6 +75,11 @@ public class ServerApplication implements IInputProcessorProvider, IHistoryProvi
             CommandWithArgument commandWithArgument = new CommandWithArgument(commandRegistry.getCommandDefinition(CommandName.save), "");
             CommandRequest commandRequest = new CommandRequest(commandWithArgument, null, null);
             requestHandler.getCommandController().handle(commandRequest);
+
+            DatagramSocket socket = serverConnectionListener.getSocket();
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
         }));
     }
 
@@ -86,11 +111,6 @@ public class ServerApplication implements IInputProcessorProvider, IHistoryProvi
             IdCounterService.setId(0);
         }
         labWorkService = new LabWorkService(map, filename);
-    }
-
-    @Override
-    public InputProcessor getInputProcessor() {
-        return inputProcessor;
     }
 
     @Override

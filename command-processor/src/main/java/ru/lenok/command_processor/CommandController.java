@@ -1,6 +1,9 @@
-package ru.lenok.common;
+package ru.lenok.command_processor;
 
 import lombok.AllArgsConstructor;
+import ru.lenok.common.CommandRequest;
+import ru.lenok.common.CommandResponse;
+import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.commands.*;
 
 @AllArgsConstructor

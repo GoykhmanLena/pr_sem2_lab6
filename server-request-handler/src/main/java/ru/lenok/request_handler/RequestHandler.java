@@ -1,15 +1,14 @@
-package ru.lenok.server;
+package ru.lenok.request_handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.lenok.common.CommandController;
+import ru.lenok.command_processor.CommandController;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandRegistry;
 import ru.lenok.common.commands.IHistoryProvider;
 import ru.lenok.common.util.HistoryList;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
