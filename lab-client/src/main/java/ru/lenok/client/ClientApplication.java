@@ -3,11 +3,11 @@ package ru.lenok.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.input.AbstractInput;
 import ru.lenok.common.input.ConsoleInput;
 
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ public class ClientApplication {
     private final InetAddress ip;
     private final int port;
     public static final String CLIENT_ID = UUID.randomUUID().toString();
-    private Map<CommandName, CommandDefinition> commandDefinitions;
+    private Collection<CommandDefinition> commandDefinitions;
 
     public ClientApplication(InetAddress ip, int port) {
         this.ip = ip;

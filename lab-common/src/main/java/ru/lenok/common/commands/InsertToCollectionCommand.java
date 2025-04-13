@@ -5,14 +5,18 @@ import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 import ru.lenok.common.util.IdCounterService;
 
+import static ru.lenok.common.commands.CommandDefinition.insert;
 
-public class InsertToCollectionCommand extends CommandWithElement {
+
+public class InsertToCollectionCommand extends AbstractCommand {
     LabWorkService labWorkService;
+    CommandDefinition commandDefinition;
 
 
-    public InsertToCollectionCommand(LabWorkService labWorkService) {
-        super("insert null {element}", "добавить новый элемент с заданным ключом");
+    public InsertToCollectionCommand(LabWorkService labWorkService, CommandDefinition commandDefinition) {
+        super(insert, "Аргумент - ключ; Элемент; Добавить новый элемент с заданным ключом");
         this.labWorkService = labWorkService;
+        this.commandDefinition = commandDefinition;
     }
 
     @Override
@@ -20,10 +24,5 @@ public class InsertToCollectionCommand extends CommandWithElement {
         element.setId(IdCounterService.getNextId());
         String warning = labWorkService.put(key, element);
         return warning == null ? EMPTY_RESULT : warning;
-    }
-
-    @Override
-    public boolean hasArg() {
-        return true;
     }
 }

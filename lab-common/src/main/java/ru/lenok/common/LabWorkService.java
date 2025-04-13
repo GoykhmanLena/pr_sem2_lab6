@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.lenok.common.models.LabWork;
-import ru.lenok.common.util.IdCounterService;
 import ru.lenok.common.util.LocalDateTimeAdapter;
 
 import java.io.IOException;
@@ -175,7 +174,7 @@ public class LabWorkService {
            return result.toString();
        }
    */
-    public String sortedByNameCollection(String arg) {
+    public String sortedByNameCollection() {
         return getStorage().getMap().entrySet().stream()
                 .map(entry -> new LabWorkEntry(entry.getKey(), entry.getValue()))
                 .sorted()

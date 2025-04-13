@@ -3,28 +3,23 @@ package ru.lenok.common.commands;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
-public class UpdateByIdInCollectionCommand extends CommandWithElement {
+public class UpdateByIdInCollectionCommand extends AbstractCommand {
     LabWorkService labWorkService;
 
     public UpdateByIdInCollectionCommand(LabWorkService labWorkService) {
-        super("update id {element}", "обновить значение элемента коллекции, id которого равен заданному");
+        super(CommandDefinition.update_id, "Аргумент - id. Элемент. Обновить значение элемента коллекции, id которого равен заданному");
         this.labWorkService = labWorkService;
     }
 
     @Override
-    public String execute(String key, LabWork element) {
+    public String execute(String id_str, LabWork element) {
         Long id;
         try {
-            id = Long.parseLong(key);
+            id = Long.parseLong(id_str);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("id имеет формат Long, попробуйте ввести еще раз");
         }
         labWorkService.updateByLabWorkId(id, element);
         return EMPTY_RESULT;
-    }
-
-    @Override
-    public boolean hasArg() {
-        return true;
     }
 }

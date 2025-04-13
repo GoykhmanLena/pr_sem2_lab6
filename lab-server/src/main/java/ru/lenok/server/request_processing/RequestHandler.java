@@ -3,6 +3,7 @@ package ru.lenok.server.request_processing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandRegistry;
 import ru.lenok.common.commands.IHistoryProvider;
@@ -30,23 +31,23 @@ public class RequestHandler implements IHistoryProvider {
         if (inputData instanceof CommandRequest){
             CommandRequest commandRequest = (CommandRequest) inputData;
             CommandDefinition commandDefinition = commandRequest.getCommandWithArgument().getCommandDefinition();
-            if (commandDefinition.isClient()){
-                return null;
-            }
             String clientID = commandRequest.getClientID();
+            if (commandDefinition == CommandDefinition.save){
+                return new CommandResponse(new IllegalArgumentException("Вы МОШЕННИК: " + inputData));
+            }
             HistoryList historyList = historyByClients.get(clientID);
             if (historyList == null){
                 logger.warn("клиент с таким id не зарегистрирован, регистрирую " + clientID);
                 historyList = new HistoryList();
                 historyByClients.put(clientID, historyList);
             }
-            historyList.addCommand(commandDefinition.getCommandName());
+            historyList.addCommand(commandDefinition);
             return commandController.handle(commandRequest);
         } else if (inputData instanceof String) {
             historyByClients.put((String) inputData, new HistoryList());
             return commandRegistry.getClientCommandDefinitions();
         }
-        throw new IllegalArgumentException("Вы передали какую-то чепуху!!!" + inputData);
+        return new CommandResponse(new IllegalArgumentException("Вы передали какую-то чепуху: " + inputData));
     }
 
     @Override

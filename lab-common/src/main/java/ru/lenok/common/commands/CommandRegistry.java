@@ -7,17 +7,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static ru.lenok.common.commands.CommandName.*;
+import static ru.lenok.common.commands.CommandDefinition.*;
 
 public class CommandRegistry {
     private final LabWorkService labWorkService;
-    public Map<CommandName, AbstractCommand> commands = new HashMap<>();
-    public Map<CommandName, CommandDefinition> commandDefinitions;
-    public Map<CommandName, CommandDefinition> clientCommandDefinitions;
+    public Map<CommandDefinition, AbstractCommand> commands = new HashMap<>();
+    public Collection<CommandDefinition> commandDefinitions;
+    public Collection<CommandDefinition> clientCommandDefinitions;
 
     public CommandRegistry(LabWorkService labWorkService, IHistoryProvider historyProvider) {
         this.labWorkService = labWorkService;
-        commands.put(insert, new InsertToCollectionCommand(labWorkService));
+        commands.put(insert, new InsertToCollectionCommand(labWorkService, insert));
         commands.put(exit, new ExitFromProgramCommand());
         commands.put(show, new ShowCollectionCommand(labWorkService));
         commands.put(save, new SaveToFileCommand(labWorkService));
@@ -33,38 +33,27 @@ public class CommandRegistry {
         commands.put(clear, new ClearCollectionCommand(labWorkService));
         commands.put(execute_script, new ExecuteScriptCommand(labWorkService));
         commands.put(history, new HistoryCommand(historyProvider));
-        commandDefinitions = commands.entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
-                        new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getValue().isClientCommand())));
+        commandDefinitions = commands.keySet();
 
-        clientCommandDefinitions = commands.entrySet().stream()
-                .filter(entry -> entry.getKey() != save)
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
-                        new CommandDefinition(entry.getKey(), entry.getValue().hasArg(), entry.getValue().hasElement(), entry.getValue().isClientCommand())));
+        clientCommandDefinitions = commands.keySet().stream()
+                .filter(key -> key != save)
+                .collect(Collectors.toList());
     }
 
-    public Map<CommandName, CommandDefinition> getCommandDefinitions() {
-        return commandDefinitions;
-    }
-
-    public Map<CommandName, CommandDefinition> getClientCommandDefinitions() {
+    public Collection<CommandDefinition> getClientCommandDefinitions() {
         return clientCommandDefinitions;
     }
 
-    public CommandDefinition getCommandDefinition(CommandName commandName) {
-        return commandDefinitions.get(commandName);
+    public AbstractCommand getCommand(CommandDefinition commandDefinition) throws IllegalArgumentException {
+        return commands.get(commandDefinition);
     }
 
-    public AbstractCommand getCommand(CommandName commandName) throws IllegalArgumentException {
-        return commands.get(commandName);
+    public String getCommandDescription(CommandDefinition commandDefinition) {
+        AbstractCommand command = getCommand(commandDefinition);
+        return command.getCommandDefinition().name() + ": " + command.getDescription();
     }
 
-    public String getCommandDescription(CommandName commandName) {
-        AbstractCommand command = getCommand(commandName);
-        return command.getName() + ": " + command.getDescription();
-    }
-
-    public Collection<CommandName> getCommandNames() {
+    public Collection<CommandDefinition> getCommandNames() {
         return commands.keySet();
     }
 }

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.util.SerializationUtils;
 
 import java.io.IOException;
@@ -15,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class ClientConnector {
     private final InetAddress ip;
     private final int port;
     private static final int RETRY_COUNT = 10;
-    private static final int WAIT_TIMEOUT = 1000 * 10;
+    private static final int WAIT_TIMEOUT = 1000 * 1000;
     InetSocketAddress serverAddress;
 
     public ClientConnector(InetAddress ip, int port) {
@@ -155,10 +155,10 @@ public class ClientConnector {
         return CLIENT_ID;
     }
 
-    public Map<CommandName, CommandDefinition> sendHello() {
+    public Collection<CommandDefinition> sendHello() {
         Object commandDefinitions = sendData(getHelloMessage());
-        if (commandDefinitions instanceof Map) {
-            return (Map<CommandName, CommandDefinition>) commandDefinitions;
+        if (commandDefinitions instanceof Collection) {
+            return (Collection<CommandDefinition>) commandDefinitions;
         }
         throw new IllegalArgumentException("Неверный ответ от сервера на команду приветствия: " + commandDefinitions);
     }

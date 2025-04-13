@@ -10,9 +10,9 @@ import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.LabWorkItemAssembler;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.commands.CommandName;
 import ru.lenok.common.input.AbstractInput;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Stack;
 
@@ -24,52 +24,17 @@ public class ClientInputProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ClientInputProcessor.class);
     public static boolean debug = true;
     private final ClientConnector clientConnector;
-    private Map<CommandName, CommandDefinition> commandDefinitions;
+    private Collection<CommandDefinition> commandDefinitions;
     private Stack<String> scriptExecutionContext;
     private ExecuteScriptCommand executeScriptCommand;
     private ExitFromProgramCommand exitCommand;
 
-    public ClientInputProcessor(Map<CommandName, CommandDefinition> commandDefinitions, ClientConnector clientConnector) {
+    public ClientInputProcessor(Collection<CommandDefinition> commandDefinitions, ClientConnector clientConnector) {
         this.scriptExecutionContext = new Stack<>();
         this.commandDefinitions = commandDefinitions;
         this.clientConnector = clientConnector;
         this.executeScriptCommand = new ExecuteScriptCommand(this);
         this.exitCommand = new ExitFromProgramCommand();
-    }
-
-    public void processInputOld(AbstractInput input, boolean interactive) throws Exception {
-        String line;
-        CommandWithArgument commandWithArgument = null;
-        LabWorkItemAssembler labWorkItemAssembler = null;
-        while ((line = input.readLine()) != null) {
-            if (labWorkItemAssembler != null) {
-                try {
-                    labWorkItemAssembler.addNextLine(line);
-                } catch (Exception e) {
-                    handleException(interactive, e);
-                    continue;
-                }
-                if (labWorkItemAssembler.isFinished()) {
-                    sendAndProcessRequest(commandWithArgument, labWorkItemAssembler);
-                    labWorkItemAssembler = null;
-                }
-                continue;
-            }
-            try {
-                commandWithArgument = parseLineAsCommand(line);
-            } catch (Exception e) {
-                handleException(interactive, e);
-                continue;
-            }
-            if (commandWithArgument.getCommandDefinition().isHasElement()) {
-                labWorkItemAssembler = new LabWorkItemAssembler(interactive);
-            } else {
-                sendAndProcessRequest(commandWithArgument, null);
-            }
-        }
-        if (labWorkItemAssembler != null) {
-            logger.error("Внимание! У вас есть невыполненная последняя команда - недостаточно полей введено, " + commandWithArgument);
-        }
     }
 
     public void processInput(AbstractInput input, boolean interactive) throws Exception {
@@ -84,7 +49,7 @@ public class ClientInputProcessor {
                     handleException(interactive, e);
                     continue;
                 }
-                if (commandWithArgument.getCommandDefinition().isHasElement()) {
+                if (commandWithArgument.getCommandDefinition().hasElement()) {
                     labWorkItemAssembler = new LabWorkItemAssembler(interactive);
                     continue;
                 }
@@ -109,11 +74,11 @@ public class ClientInputProcessor {
 
     private void sendAndProcessRequest(CommandWithArgument commandWithArgument, LabWorkItemAssembler labWorkItemAssembler) throws Exception {
         CommandRequest commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler == null ? null: labWorkItemAssembler.getLabWorkElement(), CLIENT_ID);
-        CommandName commandName = commandWithArgument.getCommandDefinition().getCommandName();
-        if (commandName == CommandName.execute_script){
+        CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
+        if (commandDefinition == CommandDefinition.execute_script){
             runExecuteScript(commandRequest);
-        } else if (commandName == CommandName.exit) {
-            exitCommand.execute("");
+        } else if (commandDefinition == CommandDefinition.exit) {
+            exitCommand.execute();
         }
         CommandResponse commandResponse = clientConnector.sendCommand(commandRequest);
         processResponse(commandResponse);
@@ -146,20 +111,19 @@ public class ClientInputProcessor {
     private CommandWithArgument parseLineAsCommand(String line) {
         String[] splittedLine = line.trim().split("\\s+");
         CommandWithArgument result = null;
-        CommandName commandName;
+        CommandDefinition commandDefinition;
         try {
-            commandName = CommandName.valueOf(splittedLine[0]);
+            commandDefinition = CommandDefinition.valueOf(splittedLine[0]);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0], e);
         }
-        CommandDefinition commandDefinition = commandDefinitions.get(commandName);
         if (commandDefinition == null){
             throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0]);
         }
-        if (!commandDefinition.isHasArg() && splittedLine.length >= 2) {
+        if (!commandDefinition.hasArg() && splittedLine.length >= 2) {
             throw new IllegalArgumentException("Слишком много аргументов, ожидалось 0: " + line);
-        } else if (commandDefinition.isHasArg() && (splittedLine.length == 1 || splittedLine.length > 2)) {
-            throw new IllegalArgumentException("Неправильное колличество аргументов, ожидался 1: " + line);
+        } else if (commandDefinition.hasArg() && (splittedLine.length == 1 || splittedLine.length > 2)) {
+            throw new IllegalArgumentException("Неправильное количество аргументов, ожидался 1: " + line);
         }
         result = new CommandWithArgument(commandDefinition, splittedLine.length == 2 ? splittedLine[1] : null);
         return result;

@@ -1,15 +1,15 @@
 package ru.lenok.common.util;
 
-import ru.lenok.common.commands.CommandName;
+import ru.lenok.common.commands.CommandDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public final class HistoryList {
-    private final List<CommandName> historyList = new ArrayList<>();
+    private final List<CommandDefinition> historyList = new ArrayList<>();
 
-    public void addCommand(CommandName command) {
+    public void addCommand(CommandDefinition command) {
         historyList.add(command);
     }
 

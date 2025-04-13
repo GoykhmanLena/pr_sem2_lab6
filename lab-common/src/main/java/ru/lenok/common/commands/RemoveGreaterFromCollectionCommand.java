@@ -3,17 +3,19 @@ package ru.lenok.common.commands;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
-public class RemoveGreaterFromCollectionCommand extends CommandWithElement {
-    LabWorkService collection;
+import static ru.lenok.common.commands.CommandDefinition.remove_greater;
 
-    public RemoveGreaterFromCollectionCommand(LabWorkService collection) {
-        super("remove_greater {element}", "удалить из коллекции все элементы, превышающие заданный");
-        this.collection = collection;
+public class RemoveGreaterFromCollectionCommand extends AbstractCommand{
+    LabWorkService labWorkService;
+
+    public RemoveGreaterFromCollectionCommand(LabWorkService labWorkService) {
+        super(remove_greater, "Элемент. Удалить из коллекции все элементы, превышающие заданный");
+        this.labWorkService = labWorkService;
     }
 
     @Override
-    public String execute(String arg, LabWork element) {
-        collection.removeGreater(element);
+    public String execute(LabWork element) {
+        labWorkService.removeGreater(element);
         return EMPTY_RESULT;
     }
 }

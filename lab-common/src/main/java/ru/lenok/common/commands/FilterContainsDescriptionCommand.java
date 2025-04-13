@@ -6,12 +6,13 @@ import ru.lenok.common.models.LabWork;
 import java.util.Map;
 
 import static ru.lenok.common.LabWorkService.sortMapAndStringify;
+import static ru.lenok.common.commands.CommandDefinition.filter_contains_description;
 
 public class FilterContainsDescriptionCommand extends AbstractCommand {
     LabWorkService labWorkService;
 
     public FilterContainsDescriptionCommand(LabWorkService labWorkService) {
-        super("filter_contains_description description", "вывести элементы, значение поля description которых содержит заданную подстроку");
+        super(filter_contains_description, "Аргумент - description. Вывести элементы, значение поля description которых содержит заданную подстроку");
         this.labWorkService = labWorkService;
     }
 
@@ -19,11 +20,5 @@ public class FilterContainsDescriptionCommand extends AbstractCommand {
     public String execute(String arg) {
         Map<String, LabWork> filteredMap = labWorkService.filterWithDescription(arg);
         return sortMapAndStringify(filteredMap);
-    }
-
-
-    @Override
-    public boolean hasArg() {
-        return true;
     }
 }

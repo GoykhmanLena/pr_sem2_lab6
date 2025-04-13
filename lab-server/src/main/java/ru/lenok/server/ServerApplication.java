@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.LabWorkService;
-import ru.lenok.common.commands.CommandName;
+import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandRegistry;
 import ru.lenok.common.commands.IHistoryProvider;
 import ru.lenok.common.models.LabWork;
@@ -71,7 +71,7 @@ public class ServerApplication implements IHistoryProvider {
     private void handleSaveOnTerminate() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Сервер завершает работу, коллекция сохраняется. Обрабатываем событие Ctrl + C.");
-            CommandWithArgument commandWithArgument = new CommandWithArgument(commandRegistry.getCommandDefinition(CommandName.save), "");
+            CommandWithArgument commandWithArgument = new CommandWithArgument(CommandDefinition.save, "");
             CommandRequest commandRequest = new CommandRequest(commandWithArgument, null, null);
             requestHandler.getCommandController().handle(commandRequest);
 
