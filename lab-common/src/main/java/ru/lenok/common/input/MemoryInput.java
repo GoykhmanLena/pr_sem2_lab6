@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-
+@Deprecated
 public class MemoryInput extends AbstractInput {
     private final List<String> content;
     private final Iterator<String> iterator;

@@ -45,7 +45,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private String getFormattedCreationDate() {
         return creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
-
+    @Deprecated
     public boolean validate() {
         return coordinates != null && coordinates.validate() &&
                 discipline != null && discipline.validate() && id != null &&

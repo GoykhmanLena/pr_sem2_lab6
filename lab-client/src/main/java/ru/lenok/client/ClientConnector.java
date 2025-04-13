@@ -7,15 +7,20 @@ import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandName;
+import ru.lenok.common.util.SerializationUtils;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static ru.lenok.client.ClientApplication.CLIENT_ID;
-import static ru.lenok.common.util.SerializationUtils.*;
+import static ru.lenok.common.util.SerializationUtils.BUFFER_SIZE;
+import static ru.lenok.common.util.SerializationUtils.INSTANCE;
 
 @AllArgsConstructor
 public class ClientConnector {
@@ -78,27 +83,43 @@ public class ClientConnector {
                 logger.debug("Данные отправлены серверу: " + obj);
 
                 ByteBuffer receiveBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-
-                long startTime = System.currentTimeMillis();
-                InetSocketAddress sourceAddress = null;
-
-                while ((System.currentTimeMillis() - startTime) < WAIT_TIMEOUT) {
-                    receiveBuffer.clear();
-                    sourceAddress = (InetSocketAddress) clientChannel.receive(receiveBuffer);
-
-                    if (sourceAddress != null) {
-                        // Данные получены — выходим из цикла
-                        break;
-                    }
-
-                    // Пауза, чтобы не нагружать процессор в холостую
-                    Thread.sleep(INTER_WAIT_SLEEP_TIMEOUT);
-                }
-
+                InetSocketAddress sourceAddress = waitForResponse(clientChannel, receiveBuffer);
                 if (sourceAddress != null) {
-                    receiveBuffer.flip();
+                    //receiveBuffer.flip();
                     Object response = INSTANCE.deserialize(receiveBuffer.array());
-                    logger.debug("Ответ от сервера: " + response);
+                    long expectedChunksSize;
+                    List<byte[]> chunks = new ArrayList<>();
+                    if (response instanceof SerializationUtils.ChunksCountWithCRC) {
+                        SerializationUtils.ChunksCountWithCRC chunksCountWithCRC = (SerializationUtils.ChunksCountWithCRC) response;
+                        expectedChunksSize = chunksCountWithCRC.getChunksCount();
+                        logger.debug("Ответ от сервера, ожидается количество чанков: " + expectedChunksSize);
+                        for (int i = 1; i <= expectedChunksSize; i++) {
+                            receiveBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+                            receiveBuffer.clear();
+                            sourceAddress = waitForResponse(clientChannel, receiveBuffer);
+                            if (sourceAddress != null) {
+                                chunks.add(INSTANCE.copy(receiveBuffer.array(), receiveBuffer.position()));
+                                logger.debug("Ответ от сервера, получен чанк: " + i);
+                            }
+                        }
+                        if (expectedChunksSize == chunks.size()) {
+                            response = INSTANCE.deserializeFromChunks(chunks, chunksCountWithCRC.getCrc());
+                            if (expectedChunksSize == 1) {
+                                logger.debug("Ответ от сервера: " + response);
+                            }
+                            else {
+                                logger.debug("Ответ от сервера: итого получено чанков " + expectedChunksSize);
+                            }
+                            return response;
+                        }
+                        else {
+                            logger.error("Ожидалось " + expectedChunksSize +  " чанков, а пришло: " + chunks.size());
+                            continue;
+                        }
+                    }
+                    else {
+                        logger.error("Ожидалось количество чанков, а пришло другое: " + response);
+                    }
                     return response;
                 } else {
                     if (retryCount > 0) {
@@ -111,6 +132,23 @@ public class ClientConnector {
             }
         }
         throw new IllegalArgumentException("Сервер недоступен");
+    }
+
+    private static InetSocketAddress waitForResponse(DatagramChannel clientChannel, ByteBuffer receiveBuffer) throws IOException, InterruptedException {
+        long startTime = System.currentTimeMillis();
+        InetSocketAddress sourceAddress = null;
+
+        while ((System.currentTimeMillis() - startTime) < WAIT_TIMEOUT) {
+            receiveBuffer.clear();
+            sourceAddress = (InetSocketAddress) clientChannel.receive(receiveBuffer);
+
+            if (sourceAddress != null) {
+                break;
+            }
+
+            Thread.sleep(INTER_WAIT_SLEEP_TIMEOUT);
+        }
+        return sourceAddress;
     }
 
     private String getHelloMessage() {

@@ -69,7 +69,6 @@ public class ServerApplication implements IHistoryProvider {
     }
 
     private void handleSaveOnTerminate() {
-        // Регистрируем Shutdown Hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Сервер завершает работу, коллекция сохраняется. Обрабатываем событие Ctrl + C.");
             CommandWithArgument commandWithArgument = new CommandWithArgument(commandRegistry.getCommandDefinition(CommandName.save), "");

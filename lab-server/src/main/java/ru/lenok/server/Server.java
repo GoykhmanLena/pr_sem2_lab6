@@ -3,9 +3,6 @@ package ru.lenok.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.InetAddress;
-
 
 public final class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -14,8 +11,8 @@ public final class Server {
         throw new UnsupportedOperationException("This is an utility class and can not be instantiated");
     }
 
-    public static void main(String[] args) throws IOException {
-        if (args.length != 2){
+    public static void main(String[] args){
+        if (args.length != 2) {
             logger.error("Программа должна запускаться с двумя аргументами: файл с коллекцией и серверный порт");
             System.exit(1);
         }
@@ -23,7 +20,7 @@ public final class Server {
         int port = 0;
         try {
             port = Integer.parseInt(strPort);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             logger.error("Ошибка, не распознан порт: ", e);
             System.exit(1);
         }
