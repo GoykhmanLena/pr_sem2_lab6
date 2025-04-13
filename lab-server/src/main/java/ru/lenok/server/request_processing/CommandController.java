@@ -1,4 +1,4 @@
-package ru.lenok.command_processor;
+package ru.lenok.server.request_processing;
 
 import lombok.AllArgsConstructor;
 import ru.lenok.common.CommandRequest;

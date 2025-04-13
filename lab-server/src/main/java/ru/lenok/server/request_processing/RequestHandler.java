@@ -1,8 +1,7 @@
-package ru.lenok.request_handler;
+package ru.lenok.server.request_processing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.lenok.command_processor.CommandController;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.commands.CommandRegistry;

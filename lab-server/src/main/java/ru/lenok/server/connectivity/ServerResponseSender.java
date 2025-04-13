@@ -1,4 +1,4 @@
-package ru.lenok.server_sender;
+package ru.lenok.server.connectivity;
 
 import lombok.Data;
 import org.slf4j.Logger;

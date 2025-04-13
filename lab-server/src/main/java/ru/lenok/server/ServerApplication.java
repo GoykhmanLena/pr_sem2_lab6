@@ -13,9 +13,9 @@ import ru.lenok.common.util.HistoryList;
 import ru.lenok.common.util.IdCounterService;
 import ru.lenok.common.util.IncomingMessage;
 import ru.lenok.common.util.JsonReader;
-import ru.lenok.connector.ServerConnectionListener;
-import ru.lenok.request_handler.RequestHandler;
-import ru.lenok.server_sender.ServerResponseSender;
+import ru.lenok.server.connectivity.ServerConnectionListener;
+import ru.lenok.server.request_processing.RequestHandler;
+import ru.lenok.server.connectivity.ServerResponseSender;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
