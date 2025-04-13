@@ -1,8 +1,10 @@
-package ru.lenok.common.commands;
+package ru.lenok.server.commands;
 
 import ru.lenok.common.CommandResponse;
-import ru.lenok.common.LabWorkService;
-import static ru.lenok.common.LabWorkService.sortMapAndStringify;
+import ru.lenok.server.collection.LabWorkService;
+import ru.lenok.common.commands.AbstractCommand;
+
+import static ru.lenok.server.collection.LabWorkService.sortMapAndStringify;
 import static ru.lenok.common.commands.CommandDefinition.show;
 
 public class ShowCollectionCommand extends AbstractCommand {

@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.client.ClientInputProcessor;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.AbstractCommand;
-import ru.lenok.common.input.AbstractInput;
-import ru.lenok.common.input.FileInput;
+import ru.lenok.client.input.AbstractInput;
+import ru.lenok.client.input.FileInput;
 
 import java.io.File;
 import java.io.IOException;

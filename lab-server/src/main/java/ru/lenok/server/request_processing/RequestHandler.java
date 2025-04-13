@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.commands.CommandRegistry;
-import ru.lenok.common.commands.IHistoryProvider;
-import ru.lenok.common.util.HistoryList;
+import ru.lenok.server.commands.CommandRegistry;
+import ru.lenok.server.commands.IHistoryProvider;
+import ru.lenok.server.utils.HistoryList;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

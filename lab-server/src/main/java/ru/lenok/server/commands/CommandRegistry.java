@@ -1,6 +1,8 @@
-package ru.lenok.common.commands;
+package ru.lenok.server.commands;
 
-import ru.lenok.common.LabWorkService;
+import ru.lenok.common.commands.AbstractCommand;
+import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.server.collection.LabWorkService;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -10,10 +10,9 @@ import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.LabWorkItemAssembler;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.input.AbstractInput;
+import ru.lenok.client.input.AbstractInput;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Stack;
 
 import static ru.lenok.client.ClientApplication.CLIENT_ID;

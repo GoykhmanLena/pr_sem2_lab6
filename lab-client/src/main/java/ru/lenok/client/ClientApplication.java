@@ -3,12 +3,11 @@ package ru.lenok.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.input.AbstractInput;
-import ru.lenok.common.input.ConsoleInput;
+import ru.lenok.client.input.AbstractInput;
+import ru.lenok.client.input.ConsoleInput;
 
 import java.net.InetAddress;
 import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 
 public class ClientApplication {

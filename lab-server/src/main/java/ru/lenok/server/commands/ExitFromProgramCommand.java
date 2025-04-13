@@ -1,6 +1,8 @@
-package ru.lenok.common.commands;
+package ru.lenok.server.commands;
 
 import ru.lenok.common.CommandResponse;
+import ru.lenok.common.commands.AbstractCommand;
+import ru.lenok.common.commands.CommandDefinition;
 
 public class ExitFromProgramCommand extends AbstractCommand {
     public ExitFromProgramCommand() {

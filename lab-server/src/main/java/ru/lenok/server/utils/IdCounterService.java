@@ -1,4 +1,4 @@
-package ru.lenok.common.util;
+package ru.lenok.server.utils;
 
 public class IdCounterService {
     private static long idCounter;

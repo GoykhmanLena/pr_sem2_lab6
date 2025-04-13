@@ -1,7 +1,9 @@
-package ru.lenok.common.commands;
+package ru.lenok.server.commands;
 
 import ru.lenok.common.CommandResponse;
-import ru.lenok.common.LabWorkService;
+import ru.lenok.server.collection.LabWorkService;
+import ru.lenok.common.commands.AbstractCommand;
+import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.models.LabWork;
 
 public class UpdateByIdInCollectionCommand extends AbstractCommand {

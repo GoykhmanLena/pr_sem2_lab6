@@ -1,4 +1,4 @@
-package ru.lenok.common.util;
+package ru.lenok.server.utils;
 
 import ru.lenok.common.commands.CommandDefinition;
 

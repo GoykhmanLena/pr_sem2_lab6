@@ -1,4 +1,4 @@
-package ru.lenok.common.util;
+package ru.lenok.server.connectivity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

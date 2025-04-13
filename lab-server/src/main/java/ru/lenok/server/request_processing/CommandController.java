@@ -5,10 +5,8 @@ import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.commands.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import ru.lenok.server.commands.CommandRegistry;
+import ru.lenok.server.commands.HistoryCommand;
 
 @AllArgsConstructor
 public class CommandController {

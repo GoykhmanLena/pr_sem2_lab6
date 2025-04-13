@@ -1,11 +1,11 @@
-package ru.lenok.common;
+package ru.lenok.server.collection;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.lenok.common.models.LabWork;
-import ru.lenok.common.util.LocalDateTimeAdapter;
+import ru.lenok.server.utils.LocalDateTimeAdapter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

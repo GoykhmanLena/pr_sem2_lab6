@@ -1,4 +1,4 @@
-package ru.lenok.common;
+package ru.lenok.server.collection;
 
 import lombok.Data;
 import ru.lenok.common.models.LabWork;
