@@ -32,7 +32,7 @@ public abstract class AbstractCommand implements Executable {
         return commandDefinition.hasElement();
     }
     public boolean hasArg() {
-        return commandDefinition.getArgType() != null;
+        return commandDefinition.hasArg();
     }
     public boolean isClientCommand() {
         return commandDefinition.isClient();
