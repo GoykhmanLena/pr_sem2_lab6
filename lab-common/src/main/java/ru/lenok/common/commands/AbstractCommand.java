@@ -3,6 +3,7 @@ package ru.lenok.common.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.models.LabWork;
 
 import java.io.IOException;
@@ -14,16 +15,16 @@ public abstract class AbstractCommand {
     private final CommandDefinition commandDefinition;
     private final String description;
 
-    public String execute(String arg) throws IOException{
+    public CommandResponse execute(String arg) throws IOException{
         throw new UnsupportedOperationException();
     }
-    public String execute(String argument, LabWork element) throws IOException{
+    public CommandResponse execute(String argument, LabWork element) throws IOException{
         throw new UnsupportedOperationException();
     }
-    public String execute() throws IOException{
+    public CommandResponse execute() throws IOException{
         throw new UnsupportedOperationException();
     }
-    public String execute(LabWork element) throws IOException{
+    public CommandResponse execute(LabWork element) throws IOException{
         throw new UnsupportedOperationException();
     }
 

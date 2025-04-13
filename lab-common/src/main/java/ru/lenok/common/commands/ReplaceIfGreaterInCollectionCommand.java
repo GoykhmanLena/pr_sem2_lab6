@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
@@ -16,8 +17,8 @@ public class ReplaceIfGreaterInCollectionCommand extends AbstractCommand {
 
 
     @Override
-    public String execute(String key, LabWork element) {
+    public CommandResponse execute(String key, LabWork element) {
         labWorkService.replaceIfGreater(key, element);
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

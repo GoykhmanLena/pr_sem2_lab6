@@ -1,6 +1,7 @@
 package ru.lenok.common.commands;
 
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 import ru.lenok.common.util.IdCounterService;
@@ -20,9 +21,9 @@ public class InsertToCollectionCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute(String key, LabWork element) {
+    public CommandResponse execute(String key, LabWork element) {
         element.setId(IdCounterService.getNextId());
         String warning = labWorkService.put(key, element);
-        return warning == null ? EMPTY_RESULT : warning;
+        return new CommandResponse (warning == null ? EMPTY_RESULT : warning);
     }
 }

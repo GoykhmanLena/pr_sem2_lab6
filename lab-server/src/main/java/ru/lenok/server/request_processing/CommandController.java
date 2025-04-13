@@ -21,9 +21,8 @@ public class CommandController {
     public CommandResponse handle(CommandRequest request) {
         CommandWithArgument commandWithArgument = request.getCommandWithArgument();
         CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
-        CommandResponse commandResponse;
+        CommandResponse executionResult = null;
         try {
-            String executionResult = null;
             AbstractCommand command = commandRegistry.getCommand(commandDefinition);
             HandlerKey handlerKey = command instanceof HistoryCommand ? new HandlerKey(true, false) : new HandlerKey(command);
             switch (handlerKey.hashCode()) {
@@ -41,11 +40,10 @@ public class CommandController {
                     executionResult = command.execute(commandWithArgument.getArgument(), request.getElement());
                     break;
             }
-            commandResponse = new CommandResponse(executionResult);
         } catch (Exception e) {
-            commandResponse = new CommandResponse(e);
+            executionResult = new CommandResponse(e);
         }
-        return commandResponse;
+        return executionResult;
     }
     @AllArgsConstructor
     private static class HandlerKey{

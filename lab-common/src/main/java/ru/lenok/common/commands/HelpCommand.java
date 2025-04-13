@@ -1,5 +1,7 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
+
 import java.util.stream.Collectors;
 
 import static ru.lenok.common.commands.CommandDefinition.help;
@@ -13,9 +15,10 @@ public class HelpCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute() {
-        return commandRegistry.getClientCommandDefinitions().stream()
+    public CommandResponse execute() {
+        String result = commandRegistry.getClientCommandDefinitions().stream()
                 .map(item -> commandRegistry.getCommandDescription(item))
                 .collect(Collectors.joining("\n"));
+        return new CommandResponse(result);
     }
 }

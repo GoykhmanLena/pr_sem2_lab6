@@ -1,5 +1,7 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
+
 import static ru.lenok.common.commands.CommandDefinition.history;
 
 public class HistoryCommand extends AbstractCommand {
@@ -11,8 +13,8 @@ public class HistoryCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute(String clientID) {
+    public CommandResponse execute(String clientID) {
         String lastNCommands = historyProvider.getHistoryByClientID(clientID).getLastNCommands(15);
-        return "История клиента с ID: " + clientID + "\n" + lastNCommands;
+        return new CommandResponse("История клиента с ID: " + clientID + "\n" + lastNCommands);
     }
 }

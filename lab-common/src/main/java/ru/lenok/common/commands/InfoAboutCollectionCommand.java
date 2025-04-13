@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
@@ -14,7 +15,7 @@ public class InfoAboutCollectionCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute() {
-        return ("Это LabWorkCollection, текущий размер: " + labWorkService.getCollectionSize() + ", состоит из элементов типа: " + LabWork.class + "\n");
+    public CommandResponse execute() {
+        return new CommandResponse("Это LabWorkCollection, текущий размер: " + labWorkService.getCollectionSize() + ", состоит из элементов типа: " + LabWork.class + "\n");
     }
 }

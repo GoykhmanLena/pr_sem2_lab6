@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 
 import static ru.lenok.common.commands.CommandDefinition.remove_key;
@@ -12,8 +13,8 @@ public class RemoveByKeyFromCollectionCommand extends AbstractCommand {
         this.labWorkService = labWorkService;
     }
     @Override
-    public String execute(String key) {
+    public CommandResponse execute(String key) {
         labWorkService.remove(key);
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

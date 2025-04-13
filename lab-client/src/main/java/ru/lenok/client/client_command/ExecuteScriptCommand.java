@@ -3,6 +3,7 @@ package ru.lenok.client.client_command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.client.ClientInputProcessor;
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.AbstractCommand;
 import ru.lenok.common.input.AbstractInput;
 import ru.lenok.common.input.FileInput;
@@ -22,7 +23,7 @@ public class ExecuteScriptCommand extends AbstractCommand {
         this.inputProcessor = inpPr;
     }
 
-    public String execute(String arg) throws IOException {
+    public CommandResponse execute(String arg) throws IOException {
         File file = new File(arg);
         logger.info("-------------------- Начало выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
         if (inputProcessor.checkContext(file.getCanonicalPath())) {
@@ -41,6 +42,6 @@ public class ExecuteScriptCommand extends AbstractCommand {
             inputProcessor.exitContext();
             logger.info("-------------------- Конец выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
         }
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

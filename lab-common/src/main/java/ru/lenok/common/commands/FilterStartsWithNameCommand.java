@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
@@ -17,8 +18,8 @@ public class FilterStartsWithNameCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute(String arg) {
+    public CommandResponse execute(String arg) {
         Map<String, LabWork> filteredMap = labWorkService.filterWithDescription(arg);
-        return sortMapAndStringify(filteredMap);
+        return new CommandResponse(sortMapAndStringify(filteredMap));
     }
 }

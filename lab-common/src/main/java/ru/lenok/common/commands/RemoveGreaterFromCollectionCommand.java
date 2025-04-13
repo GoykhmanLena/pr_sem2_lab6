@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
@@ -14,8 +15,8 @@ public class RemoveGreaterFromCollectionCommand extends AbstractCommand{
     }
 
     @Override
-    public String execute(LabWork element) {
+    public CommandResponse execute(LabWork element) {
         labWorkService.removeGreater(element);
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

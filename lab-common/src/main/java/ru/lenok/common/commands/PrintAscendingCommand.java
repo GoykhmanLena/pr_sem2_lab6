@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 
 
@@ -10,8 +11,8 @@ public class PrintAscendingCommand extends AbstractCommand {
         super(CommandDefinition.print_ascending, "вывести элементы коллекции в порядке возрастания");
         this.labWorkService = labWorkService;
     }
-
-    public String execute(String arg) {
-        return labWorkService.sortedByNameCollection();
+    @Override
+    public CommandResponse execute(String arg) {
+        return new CommandResponse(labWorkService.sortedByNameCollection());
     }
 }

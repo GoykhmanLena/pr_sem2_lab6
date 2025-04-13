@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class ExecuteScriptCommand extends AbstractCommand {
         super(execute_script, "Аргумент - filename, считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.");
     }
 
-    public String execute(String arg) throws IOException {
-        return "execute_script добавлен в историю";
+    public CommandResponse execute(String arg) throws IOException {
+        return new CommandResponse("execute_script добавлен в историю");
     }
 }

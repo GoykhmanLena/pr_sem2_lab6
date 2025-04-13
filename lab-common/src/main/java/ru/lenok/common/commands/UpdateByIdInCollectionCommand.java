@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.models.LabWork;
 
@@ -12,7 +13,7 @@ public class UpdateByIdInCollectionCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute(String id_str, LabWork element) {
+    public CommandResponse execute(String id_str, LabWork element) {
         Long id;
         try {
             id = Long.parseLong(id_str);
@@ -20,6 +21,6 @@ public class UpdateByIdInCollectionCommand extends AbstractCommand {
             throw new IllegalArgumentException("id имеет формат Long, попробуйте ввести еще раз");
         }
         labWorkService.updateByLabWorkId(id, element);
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

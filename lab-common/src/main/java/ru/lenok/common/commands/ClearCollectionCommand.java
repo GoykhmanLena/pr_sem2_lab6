@@ -1,5 +1,6 @@
 package ru.lenok.common.commands;
 
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.LabWorkService;
 import ru.lenok.common.util.IdCounterService;
 
@@ -15,9 +16,9 @@ public class ClearCollectionCommand extends AbstractCommand {
     }
 
     @Override
-    public String execute(String arg) {
+    public CommandResponse execute(String arg) {
         labWorkService.clear_collection();
         IdCounterService.setId(0);
-        return EMPTY_RESULT;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }
