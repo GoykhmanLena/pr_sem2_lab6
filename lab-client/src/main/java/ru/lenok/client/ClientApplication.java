@@ -14,7 +14,7 @@ public class ClientApplication {
     private static final Logger logger = LoggerFactory.getLogger(ClientApplication.class);
     private final InetAddress ip;
     private final int port;
-    public static final String CLIENT_ID = UUID.randomUUID().toString();
+    public static final UUID CLIENT_ID = UUID.randomUUID();
     private Collection<CommandDefinition> commandDefinitions;
 
     public ClientApplication(InetAddress ip, int port) {

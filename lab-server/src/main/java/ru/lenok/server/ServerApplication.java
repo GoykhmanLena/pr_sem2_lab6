@@ -97,12 +97,6 @@ public class ServerApplication implements IHistoryProvider {
         for (LabWork labWork : map.values()) {
             IdCounterService.setId(max(labWork.getId(), IdCounterService.getId()));
             setOfId.add(labWork.getId());
-            if (!labWork.validate()) {
-                logger.warn("Некорректные данные в файле — коллекция будет очищена");
-                map.clear();
-                IdCounterService.setId(0);
-                break;
-            }
         }
         if (setOfId.size() < map.size()) {
             logger.warn("В файле есть повторяющиеся id — коллекция будет очищена");

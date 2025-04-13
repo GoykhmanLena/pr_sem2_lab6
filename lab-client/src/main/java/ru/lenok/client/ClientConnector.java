@@ -151,12 +151,8 @@ public class ClientConnector {
         return sourceAddress;
     }
 
-    private String getHelloMessage() {
-        return CLIENT_ID;
-    }
-
     public Collection<CommandDefinition> sendHello() {
-        Object commandDefinitions = sendData(getHelloMessage());
+        Object commandDefinitions = sendData(CLIENT_ID);
         if (commandDefinitions instanceof Collection) {
             return (Collection<CommandDefinition>) commandDefinitions;
         }

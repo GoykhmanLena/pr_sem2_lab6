@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @Data
 @AllArgsConstructor
-public abstract class AbstractCommand {
+public abstract class AbstractCommand implements Executable {
     public static final String EMPTY_RESULT = "";
     private final CommandDefinition commandDefinition;
     private final String description;

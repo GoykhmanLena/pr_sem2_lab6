@@ -28,7 +28,7 @@ public class CommandController {
                     executionResult = command.execute();
                     break;
                 case 1:
-                    String argument = command instanceof HistoryCommand ? request.getClientID() : commandWithArgument.getArgument();
+                    String argument = command instanceof HistoryCommand ? request.getClientID().toString() : commandWithArgument.getArgument();
                     executionResult = command.execute(argument);
                     break;
                 case 2:

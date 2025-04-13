@@ -5,17 +5,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.client.client_command.ExecuteScriptCommand;
 import ru.lenok.client.client_command.ExitFromProgramCommand;
+import ru.lenok.client.input.AbstractInput;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.LabWorkItemAssembler;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.client.input.AbstractInput;
 
 import java.util.Collection;
 import java.util.Stack;
 
 import static ru.lenok.client.ClientApplication.CLIENT_ID;
+import static ru.lenok.common.commands.ArgType.LONG;
 
 @Data
 
@@ -72,9 +73,19 @@ public class ClientInputProcessor {
     }
 
     private void sendAndProcessRequest(CommandWithArgument commandWithArgument, LabWorkItemAssembler labWorkItemAssembler) throws Exception {
-        CommandRequest commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler == null ? null: labWorkItemAssembler.getLabWorkElement(), CLIENT_ID);
         CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
-        if (commandDefinition == CommandDefinition.execute_script){
+        if(commandDefinition.hasElement()){
+            if (labWorkItemAssembler == null){
+                throw new IllegalArgumentException("Вы не передали элемент на команду, которой он необходим: " + commandWithArgument);
+            }
+        }
+        else{
+            if (labWorkItemAssembler != null){
+                throw new IllegalArgumentException("Вы передали элемент на команду, которой он не нужен: " + commandWithArgument);
+            }
+        }
+        CommandRequest commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler == null ? null : labWorkItemAssembler.getLabWorkElement(), CLIENT_ID);
+        if (commandDefinition == CommandDefinition.execute_script) {
             runExecuteScript(commandRequest);
         } else if (commandDefinition == CommandDefinition.exit) {
             exitCommand.execute();
@@ -86,7 +97,7 @@ public class ClientInputProcessor {
     private void runExecuteScript(CommandRequest commandRequest) throws Exception {
         try {
             executeScriptCommand.execute(commandRequest.getCommandWithArgument().getArgument());
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Произошла ошибка при выполнении скрипта", e);
         }
     }
@@ -116,13 +127,22 @@ public class ClientInputProcessor {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0], e);
         }
-        if (commandDefinition == null){
+        if (commandDefinition == null) {
             throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0]);
         }
         if (!commandDefinition.hasArg() && splittedLine.length >= 2) {
             throw new IllegalArgumentException("Слишком много аргументов, ожидалось 0: " + line);
-        } else if (commandDefinition.hasArg() && (splittedLine.length == 1 || splittedLine.length > 2)) {
-            throw new IllegalArgumentException("Неправильное количество аргументов, ожидался 1: " + line);
+        } else if (commandDefinition.hasArg()) {
+            if (splittedLine.length == 1 || splittedLine.length > 2) {
+                throw new IllegalArgumentException("Неправильное количество аргументов, ожидался 1: " + line);
+            }
+            if (commandDefinition.getArgType() == LONG) {
+                try {
+                    Long.parseLong(splittedLine[1]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Ожидался аргумент типа Long, пришло: " + line);
+                }
+            }
         }
         result = new CommandWithArgument(commandDefinition, splittedLine.length == 2 ? splittedLine[1] : null);
         return result;

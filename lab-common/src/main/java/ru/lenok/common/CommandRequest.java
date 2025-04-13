@@ -7,11 +7,12 @@ import ru.lenok.common.models.LabWork;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 public class CommandRequest implements Serializable {
     private CommandWithArgument commandWithArgument;
     private LabWork element;
-    private String clientID;
+    private UUID clientID;
 }
