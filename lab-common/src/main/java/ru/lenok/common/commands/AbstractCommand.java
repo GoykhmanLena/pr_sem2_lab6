@@ -3,28 +3,42 @@ package ru.lenok.common.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.lenok.common.CommandResponse;
+import ru.lenok.common.models.LabWork;
 
 import java.io.IOException;
 
 @Data
 @AllArgsConstructor
-public abstract class AbstractCommand {
+public abstract class AbstractCommand implements Executable {
     public static final String EMPTY_RESULT = "";
-    private final String name;
+    private final CommandDefinition commandDefinition;
     private final String description;
-    private final boolean isClientCommand = false;
 
-    public abstract String execute(String arg) throws IOException;
+    public CommandResponse execute(String arg) throws IOException{
+        throw new UnsupportedOperationException();
+    }
+    public CommandResponse execute(String argument, LabWork element) throws IOException{
+        throw new UnsupportedOperationException();
+    }
+    public CommandResponse execute() throws IOException{
+        throw new UnsupportedOperationException();
+    }
+    public CommandResponse execute(LabWork element) throws IOException{
+        throw new UnsupportedOperationException();
+    }
 
     public boolean hasElement() {
-        return false;
+        return commandDefinition.hasElement();
     }
-
     public boolean hasArg() {
-        return false;
+        return commandDefinition.hasArg();
     }
     public boolean isClientCommand() {
-        return false;
+        return commandDefinition.isClient();
+    }
+    public CommandDefinition getCommandDefinition(){
+        return commandDefinition;
     }
 
 }

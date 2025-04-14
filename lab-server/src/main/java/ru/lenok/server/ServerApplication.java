@@ -4,18 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandWithArgument;
-import ru.lenok.common.LabWorkService;
-import ru.lenok.common.commands.CommandName;
-import ru.lenok.common.commands.CommandRegistry;
-import ru.lenok.common.commands.IHistoryProvider;
+import ru.lenok.server.collection.LabWorkService;
+import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.server.commands.CommandRegistry;
+import ru.lenok.server.commands.IHistoryProvider;
 import ru.lenok.common.models.LabWork;
-import ru.lenok.common.util.HistoryList;
-import ru.lenok.common.util.IdCounterService;
-import ru.lenok.common.util.IncomingMessage;
-import ru.lenok.common.util.JsonReader;
-import ru.lenok.connector.ServerConnectionListener;
-import ru.lenok.request_handler.RequestHandler;
-import ru.lenok.server_sender.ServerResponseSender;
+import ru.lenok.server.utils.HistoryList;
+import ru.lenok.server.utils.IdCounterService;
+import ru.lenok.server.connectivity.IncomingMessage;
+import ru.lenok.server.utils.JsonReader;
+import ru.lenok.server.connectivity.ServerConnectionListener;
+import ru.lenok.server.request_processing.RequestHandler;
+import ru.lenok.server.connectivity.ServerResponseSender;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -69,10 +69,9 @@ public class ServerApplication implements IHistoryProvider {
     }
 
     private void handleSaveOnTerminate() {
-        // Регистрируем Shutdown Hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Сервер завершает работу, коллекция сохраняется. Обрабатываем событие Ctrl + C.");
-            CommandWithArgument commandWithArgument = new CommandWithArgument(commandRegistry.getCommandDefinition(CommandName.save), "");
+            CommandWithArgument commandWithArgument = new CommandWithArgument(CommandDefinition.save, "");
             CommandRequest commandRequest = new CommandRequest(commandWithArgument, null, null);
             requestHandler.getCommandController().handle(commandRequest);
 
@@ -98,12 +97,6 @@ public class ServerApplication implements IHistoryProvider {
         for (LabWork labWork : map.values()) {
             IdCounterService.setId(max(labWork.getId(), IdCounterService.getId()));
             setOfId.add(labWork.getId());
-            if (!labWork.validate()) {
-                logger.warn("Некорректные данные в файле — коллекция будет очищена");
-                map.clear();
-                IdCounterService.setId(0);
-                break;
-            }
         }
         if (setOfId.size() < map.size()) {
             logger.warn("В файле есть повторяющиеся id — коллекция будет очищена");

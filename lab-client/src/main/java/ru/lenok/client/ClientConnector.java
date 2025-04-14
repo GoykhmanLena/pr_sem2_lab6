@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.CommandDefinition;
-import ru.lenok.common.commands.CommandName;
+import ru.lenok.common.util.SerializationUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class ClientConnector {
     private final InetAddress ip;
     private final int port;
     private static final int RETRY_COUNT = 10;
-    private static final int WAIT_TIMEOUT = 1000 * 10;
+    private static final int WAIT_TIMEOUT = 1000 * 1000;
     InetSocketAddress serverAddress;
 
     public ClientConnector(InetAddress ip, int port) {
@@ -86,22 +87,23 @@ public class ClientConnector {
                 if (sourceAddress != null) {
                     //receiveBuffer.flip();
                     Object response = INSTANCE.deserialize(receiveBuffer.array());
-                    int expectedChunksSize;
+                    long expectedChunksSize;
                     List<byte[]> chunks = new ArrayList<>();
-                    if (response instanceof Integer) {
-                        expectedChunksSize = (int) response;
+                    if (response instanceof SerializationUtils.ChunksCountWithCRC) {
+                        SerializationUtils.ChunksCountWithCRC chunksCountWithCRC = (SerializationUtils.ChunksCountWithCRC) response;
+                        expectedChunksSize = chunksCountWithCRC.getChunksCount();
                         logger.debug("Ответ от сервера, ожидается количество чанков: " + expectedChunksSize);
                         for (int i = 1; i <= expectedChunksSize; i++) {
                             receiveBuffer = ByteBuffer.allocate(BUFFER_SIZE);
                             receiveBuffer.clear();
                             sourceAddress = waitForResponse(clientChannel, receiveBuffer);
                             if (sourceAddress != null) {
-                                chunks.add(receiveBuffer.array());
+                                chunks.add(INSTANCE.copy(receiveBuffer.array(), receiveBuffer.position()));
                                 logger.debug("Ответ от сервера, получен чанк: " + i);
                             }
                         }
                         if (expectedChunksSize == chunks.size()) {
-                            response = INSTANCE.deserializeFromChunks(chunks);
+                            response = INSTANCE.deserializeFromChunks(chunks, chunksCountWithCRC.getCrc());
                             if (expectedChunksSize == 1) {
                                 logger.debug("Ответ от сервера: " + response);
                             }
@@ -141,24 +143,18 @@ public class ClientConnector {
             sourceAddress = (InetSocketAddress) clientChannel.receive(receiveBuffer);
 
             if (sourceAddress != null) {
-                // Данные получены — выходим из цикла
                 break;
             }
 
-            // Пауза, чтобы не нагружать процессор в холостую
             Thread.sleep(INTER_WAIT_SLEEP_TIMEOUT);
         }
         return sourceAddress;
     }
 
-    private String getHelloMessage() {
-        return CLIENT_ID;
-    }
-
-    public Map<CommandName, CommandDefinition> sendHello() {
-        Object commandDefinitions = sendData(getHelloMessage());
-        if (commandDefinitions instanceof Map) {
-            return (Map<CommandName, CommandDefinition>) commandDefinitions;
+    public Collection<CommandDefinition> sendHello() {
+        Object commandDefinitions = sendData(CLIENT_ID);
+        if (commandDefinitions instanceof Collection) {
+            return (Collection<CommandDefinition>) commandDefinitions;
         }
         throw new IllegalArgumentException("Неверный ответ от сервера на команду приветствия: " + commandDefinitions);
     }

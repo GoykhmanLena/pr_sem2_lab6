@@ -2,14 +2,16 @@ package ru.lenok.client.client_command;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.lenok.client.ClientApplication;
 import ru.lenok.client.ClientInputProcessor;
+import ru.lenok.common.CommandResponse;
 import ru.lenok.common.commands.AbstractCommand;
-import ru.lenok.common.input.AbstractInput;
-import ru.lenok.common.input.FileInput;
+import ru.lenok.client.input.AbstractInput;
+import ru.lenok.client.input.FileInput;
 
 import java.io.File;
 import java.io.IOException;
+
+import static ru.lenok.common.commands.CommandDefinition.execute_script;
 
 
 public class ExecuteScriptCommand extends AbstractCommand {
@@ -17,11 +19,11 @@ public class ExecuteScriptCommand extends AbstractCommand {
     private static final Logger logger = LoggerFactory.getLogger(ExecuteScriptCommand.class);
 
     public ExecuteScriptCommand(ClientInputProcessor inpPr) {
-        super("execute_script file_name", "считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.");
+        super(execute_script, "Аргумент - filename. Считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.");
         this.inputProcessor = inpPr;
     }
 
-    public String execute(String arg) throws IOException {
+    public CommandResponse execute(String arg) throws IOException {
         File file = new File(arg);
         logger.info("-------------------- Начало выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
         if (inputProcessor.checkContext(file.getCanonicalPath())) {
@@ -40,11 +42,6 @@ public class ExecuteScriptCommand extends AbstractCommand {
             inputProcessor.exitContext();
             logger.info("-------------------- Конец выполнения файла: " + file.getCanonicalPath() + " ---------------------------------------------------------------------");
         }
-        return EMPTY_RESULT;
-    }
-
-    @Override
-    public boolean hasArg() {
-        return true;
+        return new CommandResponse(EMPTY_RESULT);
     }
 }

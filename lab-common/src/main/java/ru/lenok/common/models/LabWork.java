@@ -45,12 +45,13 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private String getFormattedCreationDate() {
         return creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
-
     public boolean validate() {
         return coordinates != null && coordinates.validate() &&
-                discipline != null && discipline.validate() && id != null &&
-                id > 0 && name != null && !name.equals("") && creationDate != null &&
-                minimalPoint > 0 && description.length() <= 2863 && description != null &&
+                discipline != null && discipline.validate() &&
+                name != null && !name.equals("") &&
+                creationDate != null &&
+                minimalPoint > 0 &&
+                description != null && description.length() <= 2863 &&
                 difficulty != null && discipline != null;
     }
 
