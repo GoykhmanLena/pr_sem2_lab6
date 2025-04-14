@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
-import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.common.commands.CommandBehavior;
 import ru.lenok.common.util.SerializationUtils;
 
 import java.io.IOException;
@@ -151,10 +151,10 @@ public class ClientConnector {
         return sourceAddress;
     }
 
-    public Collection<CommandDefinition> sendHello() {
+    public Map<String, CommandBehavior> sendHello() {
         Object commandDefinitions = sendData(CLIENT_ID);
-        if (commandDefinitions instanceof Collection) {
-            return (Collection<CommandDefinition>) commandDefinitions;
+        if (commandDefinitions instanceof Map) {
+            return (Map<String, CommandBehavior>) commandDefinitions;
         }
         throw new IllegalArgumentException("Неверный ответ от сервера на команду приветствия: " + commandDefinitions);
     }

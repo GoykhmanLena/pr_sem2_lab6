@@ -10,9 +10,9 @@ import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
 import ru.lenok.common.LabWorkItemAssembler;
-import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.common.commands.CommandBehavior;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Stack;
 
 import static ru.lenok.client.ClientApplication.CLIENT_ID;
@@ -22,19 +22,21 @@ import static ru.lenok.common.commands.ArgType.LONG;
 
 public class ClientInputProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ClientInputProcessor.class);
+    public static final String EXECUTE_SCRIPT_NAME = "execute_script";
+    public static final String EXIT_NAME = "exit";
     public static boolean debug = true;
     private final ClientConnector clientConnector;
-    private Collection<CommandDefinition> commandDefinitions;
+    private Map<String, CommandBehavior> commandDefinitions;
     private Stack<String> scriptExecutionContext;
     private ExecuteScriptCommand executeScriptCommand;
     private ExitFromProgramCommand exitCommand;
 
-    public ClientInputProcessor(Collection<CommandDefinition> commandDefinitions, ClientConnector clientConnector) {
+    public ClientInputProcessor(Map<String, CommandBehavior> commandDefinitions, ClientConnector clientConnector) {
         this.scriptExecutionContext = new Stack<>();
         this.commandDefinitions = commandDefinitions;
         this.clientConnector = clientConnector;
-        this.executeScriptCommand = new ExecuteScriptCommand(this);
-        this.exitCommand = new ExitFromProgramCommand();
+        this.executeScriptCommand = new ExecuteScriptCommand(this, commandDefinitions.get(EXECUTE_SCRIPT_NAME));
+        this.exitCommand = new ExitFromProgramCommand(commandDefinitions.get(EXIT_NAME));
     }
 
     public void processInput(AbstractInput input, boolean interactive) throws Exception {
@@ -49,7 +51,7 @@ public class ClientInputProcessor {
                     handleException(interactive, e);
                     continue;
                 }
-                if (commandWithArgument.getCommandDefinition().hasElement()) {
+                if (commandWithArgument.getCommandBehavior().hasElement()) {
                     labWorkItemAssembler = new LabWorkItemAssembler(interactive);
                     continue;
                 }
@@ -73,8 +75,9 @@ public class ClientInputProcessor {
     }
 
     private void sendAndProcessRequest(CommandWithArgument commandWithArgument, LabWorkItemAssembler labWorkItemAssembler) throws Exception {
-        CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
-        if(commandDefinition.hasElement()){
+        CommandBehavior commandBehavior = commandWithArgument.getCommandBehavior();
+        String commandName = commandWithArgument.getCommandName();
+        if(commandBehavior.hasElement()){
             if (labWorkItemAssembler == null){
                 throw new IllegalArgumentException("Вы не передали элемент на команду, которой он необходим: " + commandWithArgument);
             }
@@ -85,9 +88,9 @@ public class ClientInputProcessor {
             }
         }
         CommandRequest commandRequest = new CommandRequest(commandWithArgument, labWorkItemAssembler == null ? null : labWorkItemAssembler.getLabWorkElement(), CLIENT_ID);
-        if (commandDefinition == CommandDefinition.execute_script) {
+        if (EXECUTE_SCRIPT_NAME.equals(commandName)) {
             runExecuteScript(commandRequest);
-        } else if (commandDefinition == CommandDefinition.exit) {
+        } else if (EXIT_NAME.equals(commandName)) {
             exitCommand.execute();
         }
         CommandResponse commandResponse = clientConnector.sendCommand(commandRequest);
@@ -120,23 +123,19 @@ public class ClientInputProcessor {
 
     private CommandWithArgument parseLineAsCommand(String line) {
         String[] splittedLine = line.trim().split("\\s+");
-        CommandWithArgument result = null;
-        CommandDefinition commandDefinition;
-        try {
-            commandDefinition = CommandDefinition.valueOf(splittedLine[0]);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0], e);
+        CommandWithArgument result;
+        String commandNameStr = splittedLine[0];
+        CommandBehavior commandBehavior = commandDefinitions.get(commandNameStr);
+        if (commandBehavior == null) {
+            throw new IllegalArgumentException("Такой команды НЕТ: " + commandNameStr);
         }
-        if (commandDefinition == null) {
-            throw new IllegalArgumentException("Такой команды НЕТ: " + splittedLine[0]);
-        }
-        if (!commandDefinition.hasArg() && splittedLine.length >= 2) {
+        if (!commandBehavior.hasArg() && splittedLine.length >= 2) {
             throw new IllegalArgumentException("Слишком много аргументов, ожидалось 0: " + line);
-        } else if (commandDefinition.hasArg()) {
+        } else if (commandBehavior.hasArg()) {
             if (splittedLine.length == 1 || splittedLine.length > 2) {
                 throw new IllegalArgumentException("Неправильное количество аргументов, ожидался 1: " + line);
             }
-            if (commandDefinition.getArgType() == LONG) {
+            if (commandBehavior.getArgType() == LONG) {
                 try {
                     Long.parseLong(splittedLine[1]);
                 } catch (NumberFormatException e) {
@@ -144,7 +143,7 @@ public class ClientInputProcessor {
                 }
             }
         }
-        result = new CommandWithArgument(commandDefinition, splittedLine.length == 2 ? splittedLine[1] : null);
+        result = new CommandWithArgument(commandNameStr, commandBehavior, splittedLine.length == 2 ? splittedLine[1] : null);
         return result;
     }
 

@@ -1,16 +1,16 @@
 package ru.lenok.server.utils;
 
-import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.server.commands.CommandName;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public final class HistoryList {
-    private final List<CommandDefinition> historyList = new ArrayList<>();
+    private final List<CommandName> historyList = new ArrayList<>();
 
-    public void addCommand(CommandDefinition command) {
-        historyList.add(command);
+    public void addCommand(CommandName commandName) {
+        historyList.add(commandName);
     }
 
     public String getLastNCommands(int n) {
