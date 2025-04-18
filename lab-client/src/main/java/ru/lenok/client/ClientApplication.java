@@ -23,10 +23,9 @@ public class ClientApplication {
     }
 
     public void start() {
-        ClientConnector clientConnector = new ClientConnector(ip, port);
-        commandDefinitions = clientConnector.sendHello();
-
         try (AbstractInput input = new ConsoleInput()) {
+            ClientConnector clientConnector = new ClientConnector(ip, port);
+            commandDefinitions = clientConnector.sendHello();
             ClientInputProcessor inputProcessor = new ClientInputProcessor(commandDefinitions, clientConnector);
             inputProcessor.processInput(input, true);
         } catch (Exception e) {

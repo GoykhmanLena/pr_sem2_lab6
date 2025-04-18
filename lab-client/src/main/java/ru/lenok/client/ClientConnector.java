@@ -29,7 +29,7 @@ public class ClientConnector {
     private final InetAddress ip;
     private final int port;
     private static final int RETRY_COUNT = 10;
-    private static final int WAIT_TIMEOUT = 1000 * 1000;
+    private static final int WAIT_TIMEOUT = 1000 * 10;
     InetSocketAddress serverAddress;
 
     public ClientConnector(InetAddress ip, int port) {
