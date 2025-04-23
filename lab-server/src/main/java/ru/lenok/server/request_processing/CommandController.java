@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
-import ru.lenok.common.commands.AbstractCommand;
+import ru.lenok.common.commands.Executable;
 import ru.lenok.server.commands.CommandName;
 import ru.lenok.server.commands.CommandRegistry;
 
@@ -16,7 +16,7 @@ public class CommandController {
         CommandName commandName = CommandName.valueOf(commandWithArgument.getCommandName());
         CommandResponse executionResult;
         try {
-            AbstractCommand command = commandRegistry.getCommand(commandName);
+            Executable command = commandRegistry.getCommand(commandName);
             executionResult = command.execute(request);
         } catch (Exception e) {
             executionResult = new CommandResponse(e);

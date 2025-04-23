@@ -7,4 +7,6 @@ import java.io.IOException;
 
 public interface Executable {
     CommandResponse execute(CommandRequest req)throws IOException;
+
+    String getDescription();
 }
