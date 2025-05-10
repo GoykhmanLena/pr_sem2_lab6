@@ -4,18 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandWithArgument;
+import ru.lenok.common.models.LabWork;
 import ru.lenok.server.collection.LabWorkService;
-import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.server.commands.CommandRegistry;
 import ru.lenok.server.commands.IHistoryProvider;
-import ru.lenok.common.models.LabWork;
+import ru.lenok.server.connectivity.IncomingMessage;
+import ru.lenok.server.connectivity.ServerConnectionListener;
+import ru.lenok.server.connectivity.ServerResponseSender;
+import ru.lenok.server.request_processing.RequestHandler;
 import ru.lenok.server.utils.HistoryList;
 import ru.lenok.server.utils.IdCounterService;
-import ru.lenok.server.connectivity.IncomingMessage;
 import ru.lenok.server.utils.JsonReader;
-import ru.lenok.server.connectivity.ServerConnectionListener;
-import ru.lenok.server.request_processing.RequestHandler;
-import ru.lenok.server.connectivity.ServerResponseSender;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -23,6 +22,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 
 import static java.lang.Math.max;
+import static ru.lenok.server.commands.CommandName.save;
 
 public class ServerApplication implements IHistoryProvider {
     private static final Logger logger = LoggerFactory.getLogger(ServerApplication.class);
@@ -71,7 +71,7 @@ public class ServerApplication implements IHistoryProvider {
     private void handleSaveOnTerminate() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Сервер завершает работу, коллекция сохраняется. Обрабатываем событие Ctrl + C.");
-            CommandWithArgument commandWithArgument = new CommandWithArgument(CommandDefinition.save, "");
+            CommandWithArgument commandWithArgument = new CommandWithArgument(save.name(), save.getBehavior(), null);
             CommandRequest commandRequest = new CommandRequest(commandWithArgument, null, null);
             requestHandler.getCommandController().handle(commandRequest);
 

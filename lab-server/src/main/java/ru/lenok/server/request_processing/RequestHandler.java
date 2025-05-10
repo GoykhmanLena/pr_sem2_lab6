@@ -5,8 +5,9 @@ import org.slf4j.LoggerFactory;
 import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
 import ru.lenok.common.CommandWithArgument;
-import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.common.commands.CommandBehavior;
 import ru.lenok.common.models.LabWork;
+import ru.lenok.server.commands.CommandName;
 import ru.lenok.server.commands.CommandRegistry;
 import ru.lenok.server.commands.IHistoryProvider;
 import ru.lenok.server.utils.HistoryList;
@@ -16,6 +17,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static ru.lenok.common.commands.ArgType.LONG;
+import static ru.lenok.server.commands.CommandName.exit;
+import static ru.lenok.server.commands.CommandName.save;
 
 public class RequestHandler implements IHistoryProvider {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -39,7 +42,8 @@ public class RequestHandler implements IHistoryProvider {
             if (validateResponse != null){
                 return validateResponse;
             }
-            CommandDefinition commandDefinition = commandRequest.getCommandWithArgument().getCommandDefinition();
+            String commandNameStr = commandRequest.getCommandWithArgument().getCommandName();
+            CommandName commandName = CommandName.valueOf(commandNameStr);
             UUID clientID = commandRequest.getClientID();
             HistoryList historyList = historyByClients.get(clientID.toString());
             if (historyList == null) {
@@ -47,7 +51,7 @@ public class RequestHandler implements IHistoryProvider {
                 historyList = new HistoryList();
                 historyByClients.put(clientID.toString(), historyList);
             }
-            historyList.addCommand(commandDefinition);
+            historyList.addCommand(commandName);
             return commandController.handle(commandRequest);
         } else if (inputData instanceof UUID) {
             historyByClients.put(inputData.toString(), new HistoryList());
@@ -71,19 +75,27 @@ public class RequestHandler implements IHistoryProvider {
         if (commandWithArgument == null){
             return errorResponse("Неверный формат запроса: ", commandRequest);
         }
-        CommandDefinition commandDefinition = commandWithArgument.getCommandDefinition();
-        if (commandDefinition == null){
+        String commandNameStr = commandWithArgument.getCommandName();
+        if (commandNameStr == null){
             return errorResponse("Неверный формат запроса: ", commandRequest);
         }
-        if (commandDefinition == CommandDefinition.save || commandDefinition == CommandDefinition.exit){
+        CommandName commandName;
+        try {
+            commandName = CommandName.valueOf(commandNameStr);
+        }
+        catch (IllegalArgumentException e){
+            return errorResponse("Такой команды не существует: ", commandRequest);
+        }
+        if (commandName == save || commandName == exit){
             return errorResponse("Вы МОШЕННИК: эта команда на сервере не разрешена: ", commandRequest);
         }
+        CommandBehavior commandBehavior = commandName.getBehavior();
         String argument = commandWithArgument.getArgument();
-        if (commandDefinition.hasArg()) {
+        if (commandBehavior.hasArg()) {
             if (argument == null || argument.isEmpty()) {
                 return errorResponse("Ожидался аргумент, ничего не пришло: ", commandRequest);
             }
-            if (commandDefinition.getArgType() == LONG){
+            if (commandBehavior.getArgType() == LONG){
                 try {
                     Long.parseLong(argument);
                 } catch (NumberFormatException e){
@@ -91,7 +103,7 @@ public class RequestHandler implements IHistoryProvider {
                 }
             }
         }
-        if (commandDefinition.hasElement()) {
+        if (commandBehavior.hasElement()) {
             if (element == null) {
                 return errorResponse("Ожидался элемент, ничего не пришло: ", commandRequest);
             }

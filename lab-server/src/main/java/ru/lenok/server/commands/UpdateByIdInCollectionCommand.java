@@ -1,21 +1,24 @@
 package ru.lenok.server.commands;
 
+import ru.lenok.common.CommandRequest;
 import ru.lenok.common.CommandResponse;
-import ru.lenok.server.collection.LabWorkService;
 import ru.lenok.common.commands.AbstractCommand;
-import ru.lenok.common.commands.CommandDefinition;
 import ru.lenok.common.models.LabWork;
+import ru.lenok.server.collection.LabWorkService;
+
+import java.io.IOException;
+
+import static ru.lenok.server.commands.CommandName.update_id;
 
 public class UpdateByIdInCollectionCommand extends AbstractCommand {
     LabWorkService labWorkService;
 
     public UpdateByIdInCollectionCommand(LabWorkService labWorkService) {
-        super(CommandDefinition.update_id, "Аргумент - id. Элемент. Обновить значение элемента коллекции, id которого равен заданному");
+        super(update_id.getBehavior(), "Аргумент - id. Элемент. Обновить значение элемента коллекции, id которого равен заданному");
         this.labWorkService = labWorkService;
     }
 
-    @Override
-    public CommandResponse execute(String id_str, LabWork element) {
+    private CommandResponse execute(String id_str, LabWork element) {
         Long id;
         try {
             id = Long.parseLong(id_str);
@@ -24,5 +27,10 @@ public class UpdateByIdInCollectionCommand extends AbstractCommand {
         }
         labWorkService.updateByLabWorkId(id, element);
         return new CommandResponse(EMPTY_RESULT);
+    }
+
+    @Override
+    public CommandResponse execute(CommandRequest req) throws IOException {
+        return execute(req.getCommandWithArgument().getArgument(), req.getElement());
     }
 }

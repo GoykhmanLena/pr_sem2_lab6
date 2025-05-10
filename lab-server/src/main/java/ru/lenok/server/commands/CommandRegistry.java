@@ -1,7 +1,8 @@
 package ru.lenok.server.commands;
 
 import ru.lenok.common.commands.AbstractCommand;
-import ru.lenok.common.commands.CommandDefinition;
+import ru.lenok.common.commands.CommandBehavior;
+import ru.lenok.common.commands.Executable;
 import ru.lenok.server.collection.LabWorkService;
 
 import java.util.Collection;
@@ -9,53 +10,56 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static ru.lenok.common.commands.CommandDefinition.*;
+import static ru.lenok.server.commands.CommandName.*;
 
 public class CommandRegistry {
-    private final LabWorkService labWorkService;
-    public Map<CommandDefinition, AbstractCommand> commands = new HashMap<>();
-    public Collection<CommandDefinition> commandDefinitions;
-    public Collection<CommandDefinition> clientCommandDefinitions;
+    public Map<CommandName, Executable> commands = new HashMap<>();
+    public Collection<CommandName> commandDefinitions;
+    public Map<String, CommandBehavior> clientCommandDefinitions;
 
     public CommandRegistry(LabWorkService labWorkService, IHistoryProvider historyProvider) {
-        this.labWorkService = labWorkService;
-        commands.put(insert, new InsertToCollectionCommand(labWorkService, insert));
-        commands.put(exit, new ExitFromProgramCommand());
-        commands.put(show, new ShowCollectionCommand(labWorkService));
-        commands.put(save, new SaveToFileCommand(labWorkService));
-        commands.put(remove_key, new RemoveByKeyFromCollectionCommand(labWorkService));
-        commands.put(update_id, new UpdateByIdInCollectionCommand(labWorkService));
-        commands.put(print_ascending, new PrintAscendingCommand(labWorkService));
-        commands.put(remove_greater, new RemoveGreaterFromCollectionCommand(labWorkService));
-        commands.put(replace_if_greater, new ReplaceIfGreaterInCollectionCommand(labWorkService));
-        commands.put(filter_contains_description, new FilterContainsDescriptionCommand(labWorkService));
-        commands.put(filter_starts_with_name, new FilterStartsWithNameCommand(labWorkService));
-        commands.put(help, new HelpCommand(this));
-        commands.put(info, new InfoAboutCollectionCommand(labWorkService));
-        commands.put(clear, new ClearCollectionCommand(labWorkService));
-        commands.put(execute_script, new ExecuteScriptCommand(labWorkService));
-        commands.put(history, new HistoryCommand(historyProvider));
+        commands.put(insert, wrap(new InsertToCollectionCommand(labWorkService)));
+        commands.put(exit, wrap(new ExitFromProgramCommand()));
+        commands.put(show, wrap(new ShowCollectionCommand(labWorkService)));
+        commands.put(save, wrap(new SaveToFileCommand(labWorkService)));
+        commands.put(remove_key, wrap(new RemoveByKeyFromCollectionCommand(labWorkService)));
+        commands.put(update_id, wrap(new UpdateByIdInCollectionCommand(labWorkService)));
+        commands.put(print_ascending, wrap(new PrintAscendingCommand(labWorkService)));
+        commands.put(remove_greater, wrap(new RemoveGreaterFromCollectionCommand(labWorkService)));
+        commands.put(replace_if_greater, wrap(new ReplaceIfGreaterInCollectionCommand(labWorkService)));
+        commands.put(filter_contains_description, wrap(new FilterContainsDescriptionCommand(labWorkService)));
+        commands.put(filter_starts_with_name, wrap(new FilterStartsWithNameCommand(labWorkService)));
+        commands.put(help, wrap(new HelpCommand(this)));
+        commands.put(info, wrap(new InfoAboutCollectionCommand(labWorkService)));
+        commands.put(clear, wrap(new ClearCollectionCommand(labWorkService)));
+        commands.put(execute_script, wrap(new ExecuteScriptCommand(labWorkService)));
+        commands.put(history, wrap(new HistoryCommand(historyProvider)));
         commandDefinitions = commands.keySet();
 
         clientCommandDefinitions = commands.keySet().stream()
                 .filter(key -> key != save)
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(commandName -> commandName.name(), commandName -> commandName.getBehavior()));
     }
 
-    public Collection<CommandDefinition> getClientCommandDefinitions() {
+    private Executable wrap(AbstractCommand command) {
+        return new TimeLoggingCommandWrapper(command);
+    }
+    public Map<String, CommandBehavior> getClientCommandDefinitions() {
         return clientCommandDefinitions;
     }
 
-    public AbstractCommand getCommand(CommandDefinition commandDefinition) throws IllegalArgumentException {
-        return commands.get(commandDefinition);
+    public Executable getCommand(CommandName commandName) throws IllegalArgumentException {
+        return commands.get(commandName);
     }
 
-    public String getCommandDescription(CommandDefinition commandDefinition) {
-        AbstractCommand command = getCommand(commandDefinition);
-        return command.getCommandDefinition().name() + ": " + command.getDescription();
+    public String getCommandDescription(CommandName commandName) {
+        Executable command = getCommand(commandName);
+        return commandName.name() + ": " + command.getDescription();
     }
 
-    public Collection<CommandDefinition> getCommandNames() {
-        return commands.keySet();
+    public String getCommandDescription(String commandNameStr) {
+        CommandName commandName = valueOf(commandNameStr);
+        return getCommandDescription(commandName);
     }
+
 }
